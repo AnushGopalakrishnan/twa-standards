@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.2 — 2026-09-09
+
+- Keep Escape and Tab working when a pending signup submission causes focus to leave the disabled submit button.
+- Verify dismissal during submission cannot overwrite the next form session.
+
 ## 1.0.1 — 2026-09-09
 
 - Bind signup and theme demos synchronously and retain counter clicks during optional module loading.

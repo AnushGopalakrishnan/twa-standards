@@ -49,7 +49,13 @@ try {
  await page.keyboard.press('Shift+Tab');assert.equal(await page.evaluate(()=>document.activeElement.className),'button button--primary signup-submit');
  await page.keyboard.press('Escape');assert.equal(await page.locator('main').evaluate(el=>el.inert),false);assert(await page.locator('[data-signup]').evaluate(el=>el===document.activeElement));
  await page.locator('[data-error]').uncheck();await page.locator('[data-signup]').click();await page.locator('.signup-submit').click();
- await page.waitForFunction(()=>document.querySelector('.signup-status').textContent==='Demo complete. No email was saved.');await page.keyboard.press('Escape');
+ await page.waitForFunction(()=>document.querySelector('.signup-status').textContent==='Demo complete. No email was saved.');
+ // Disabling a focused submit button can move focus to body in real browsers.
+ await page.evaluate(()=>document.activeElement.blur());await page.keyboard.press('Escape');
+ assert(await page.locator('.signup-overlay').evaluate(el=>el.hidden));
+ await page.locator('[data-signup]').click();await page.locator('#signup-email').fill('pending@example.com');await page.locator('.signup-submit').click();
+ await page.evaluate(()=>document.activeElement.blur());await page.keyboard.press('Escape');await page.locator('[data-signup]').click();await page.locator('#signup-email').fill('reopened@example.com');
+ await page.waitForTimeout(800);assert.equal(await page.locator('#signup-email').inputValue(),'reopened@example.com');assert.equal(await page.locator('.signup-status').textContent(),'');await page.keyboard.press('Escape');
  await page.goto(origin+'/components/counters/');await page.locator('[data-example="counter"] button').click();await page.waitForFunction(()=>document.querySelector('.lightbox-count').getAttribute('aria-label')==='2 / 12');assert.equal(await page.locator('.lightbox-count').getAttribute('aria-label'),'2 / 12');
  await page.emulateMedia({reducedMotion:'reduce'});await page.reload();await page.waitForSelector('number-flow');assert.equal(await page.locator('number-flow').evaluate(el=>el.animated),false);
  await page.goto(origin+'/patterns/placeholders/');await page.locator('[data-example="placeholder"] button').click();assert(await page.locator('.screen').evaluate(el=>el.classList.contains('is-loaded')));

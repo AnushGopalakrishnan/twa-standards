@@ -39,11 +39,13 @@ export function mountSignup({trigger, overlay = document.querySelector('.signup-
   overlay.querySelector('.signup-close').addEventListener('click', close);
   overlay.querySelector('.signup-cancel').addEventListener('click', close);
   overlay.addEventListener('click', event => {if (event.target === overlay) close();});
-  overlay.addEventListener('keydown', event => {
+  document.addEventListener('keydown', event => {
+    if (overlay.hidden) return;
     if (event.key === 'Escape') {event.preventDefault(); close();}
     if (event.key !== 'Tab') return;
     const controls = [...overlay.querySelectorAll('button:not(:disabled), input:not([tabindex="-1"]), a[href]')];
     const first = controls[0], last = controls.at(-1);
+    if (!overlay.contains(document.activeElement)) {event.preventDefault(); (event.shiftKey ? last : first).focus(); return;}
     if (event.shiftKey && document.activeElement === first) {event.preventDefault(); last.focus();}
     else if (!event.shiftKey && document.activeElement === last) {event.preventDefault(); first.focus();}
   });
