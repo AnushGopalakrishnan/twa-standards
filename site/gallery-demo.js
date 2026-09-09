@@ -1,0 +1,12 @@
+import {mountTheme} from 'twa-standards';
+import {createGallerySections,mountGallery,mountSignup} from 'twa-standards/patterns';
+mountTheme(document.querySelector('.theme-toggle'),{storageKey:'twa-standards-theme'});
+const categories=[{id:'editorial',key:'editorial',title:'Editorial'},{id:'product',key:'product',title:'Product'}];
+const names=['A quiet beginning','Common ground','The next chapter','Field notes','A useful detail','Room to think'];
+const data={categories,references:names.map((title,index)=>({id:String(index),categoryId:index<3?'editorial':'product',title,url:'https://example.com',image:{url:new URL(`/assets/example-${index+1}.svg`,location.href).href,thumbnail:`/assets/example-${index+1}.svg`,medium:`/assets/example-${index+1}.svg`,width:1440,height:900,placeholder:window.DEMO_PLACEHOLDER}}))};
+const {sections,links}=createGallerySections(data);
+const selected=new URL(location.href).searchParams.get('category');
+document.getElementById('gallery').replaceChildren(sections.find(section=>section.id===selected)||sections[0]);
+document.querySelector('.category-nav').replaceChildren(links);
+const viewer=mountGallery(sections);
+mountSignup({trigger:document.querySelector('.newsletter-open'),beforeOpen:async()=>{const dialog=document.querySelector('.lightbox');if(dialog.open)await new Promise(resolve=>{dialog.addEventListener('close',resolve,{once:true});viewer.close();});},submit:async()=>{await new Promise(resolve=>setTimeout(resolve,700));return 'Demo complete. No email was saved.';}});

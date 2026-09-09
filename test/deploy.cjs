@@ -1,0 +1,32 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
+const {execFileSync} = require('node:child_process');
+const {verifyProductionCheckout} = require('../scripts/deploy.cjs');
+const root = fs.mkdtempSync(path.join(os.tmpdir(),'specimen-deploy-'));
+const remote = path.join(root,'remote.git');
+const checkout = path.join(root,'checkout');
+const git = (...args) => execFileSync('git',args,{cwd:checkout,stdio:'pipe',encoding:'utf8'}).trim();
+try {
+  execFileSync('git',['init','--bare','--initial-branch=main',remote],{stdio:'pipe'});
+  execFileSync('git',['clone',remote,checkout],{stdio:'pipe'});
+  fs.writeFileSync(path.join(checkout,'file.txt'),'main\n');
+  git('add','.');git('-c','user.name=Fixture','-c','user.email=fixture@example.test','commit','-m','Initial');
+  git('push','origin','main');
+  const main = git('rev-parse','HEAD');
+  assert.equal(verifyProductionCheckout(checkout),main);
+  fs.writeFileSync(path.join(checkout,'file.txt'),'dirty\n');
+  assert.throws(()=>verifyProductionCheckout(checkout),/clean working tree/);
+  git('restore','file.txt');
+  fs.writeFileSync(path.join(checkout,'untracked.txt'),'untracked');
+  assert.throws(()=>verifyProductionCheckout(checkout),/clean working tree/);
+  fs.unlinkSync(path.join(checkout,'untracked.txt'));
+  git('switch','-c','feature');
+  fs.writeFileSync(path.join(checkout,'file.txt'),'feature\n');git('add','.');
+  git('-c','user.name=Fixture','-c','user.email=fixture@example.test','commit','-m','Feature');
+  assert.throws(()=>verifyProductionCheckout(checkout),/exact origin\/main revision/);
+  git('switch','--detach',main);
+  assert.equal(verifyProductionCheckout(checkout),main);
+  console.log('PASS: production guard accepts exact main (including detached checkout), rejects unmerged, dirty and untracked changes.');
+} finally {fs.rmSync(root,{recursive:true,force:true});}

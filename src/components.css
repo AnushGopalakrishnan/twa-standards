@@ -1,0 +1,63 @@
+/* Extracted from Specimen; preserve selector order within this entry. */
+.skip{position:fixed;left:12px;top:12px;z-index:20;padding:8px 10px;background:#000;color:#fff;transform:translateY(-160%)}
+.skip:focus{transform:none}
+.sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+.skip{background:var(--accent);color:var(--bg)}
+a:not(.preview):not(.skip){color:var(--quiet);transition:color 120ms ease}
+a:not(.preview):not(.skip):hover,a:not(.preview):not(.skip):focus-visible{color:var(--accent)}
+.theme-toggle{display:inline-flex;align-items:center;gap:.45rem;margin:0 0 18px;padding:0;border:0;background:transparent;font:inherit;font-weight:inherit;line-height:inherit;cursor:pointer}
+.theme-toggle:hover,.theme-toggle:focus-visible{color:var(--accent)}
+.button{appearance:none;border:0;border-radius:0;padding:12px;font:inherit;font-weight:inherit;line-height:1.25;cursor:pointer}
+.button.button--primary{background:var(--ink);color:var(--bg)!important;transition:background-color 120ms ease,color 120ms ease}
+.button.button--primary:enabled:hover,.button.button--primary:enabled:focus-visible{background:var(--accent);color:var(--on-accent)!important}
+.signup-field{display:block;width:100%;height:42px;padding:0 12px;border:1px solid var(--hairline);border-radius:0;background:transparent;color:var(--ink);font:inherit;outline:0}
+.signup-field:focus{border-color:var(--focus-ring)}
+.signup-form-actions button:not(.button){appearance:none;border:0;background:transparent;padding:6px 0;font:inherit;font-weight:inherit;cursor:pointer}
+.signup-status{min-height:1.4em;margin:12px 0 0!important;text-align:left!important}
+.signup-status:empty{display:none}
+.button:disabled{opacity:.55;cursor:wait}
+.icon{display:inline-block;width:1em;height:1em;vertical-align:-.125em;flex-shrink:0;pointer-events:none}
+.lightbox-nav .icon{width:16px;height:16px}
+.category-nav{display:grid;grid-template-columns:1fr;gap:3px 20px;margin-top:28px}
+.category-nav a{display:flex;justify-content:space-between;gap:12px;color:var(--muted);white-space:nowrap}
+.category-nav a span:last-child{color:var(--quiet)}
+.category-nav a:hover,.category-nav a:focus-visible{color:#000}
+@media(min-width:600px) and (max-width:849px){
+.category-nav{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(min-width:850px){
+.category-nav{grid-template-columns:1fr}
+}
+.lightbox-count{color:rgba(255,255,255,.5);white-space:nowrap}
+.category-nav a:hover,.category-nav a:focus-visible{color:var(--accent)}
+.category-nav a{color:var(--muted)}
+.category-nav a span:last-child{color:var(--accent)}
+.lightbox-count{color:var(--muted)}
+.category-nav a[aria-current="location"]{color:var(--accent)}
+.category-nav a{transition:color 120ms ease,opacity 120ms ease}
+@media(prefers-reduced-motion:reduce){
+.category-nav a{transition:none}
+}
+.lightbox-count{display:inline-grid;min-width:9ch;overflow:hidden;vertical-align:bottom;text-align:right;contain:layout paint;font-variant-numeric:tabular-nums}
+.lightbox-count-value{grid-area:1/1;white-space:nowrap}
+.lightbox-count{display:inline-flex;align-items:baseline;overflow:visible}
+.lightbox-count-current{display:inline-flex}
+.lightbox-count-digit{display:inline-grid;width:.58em;overflow:hidden;text-align:center}
+.lightbox-count-suffix{white-space:pre}
+button:not(.lightbox-nav):not(.icon-control){color:var(--quiet);transition:color 120ms ease}
+button:not(.lightbox-nav):not(.icon-control):hover,button:not(.lightbox-nav):not(.icon-control):focus-visible{color:var(--accent)}
+.category-nav a span:last-child{color:inherit}
+.category-nav a[aria-current="location"]{color:var(--accent)}
+.theme-toggle-icon{display:inline-block;width:1em;text-align:center}
+.lightbox-count{order:3;margin-top:20px;text-align:left}
+.lightbox-count{gap:0;min-width:0;font-variant-numeric:normal;letter-spacing:normal}
+.lightbox-count number-flow{font:inherit;letter-spacing:inherit;line-height:1;--number-flow-mask-width:0;--number-flow-mask-height:.1em}
+/* Unscoped equivalents of the existing text, icon and divider controls. */
+.text-action{appearance:none;border:0;background:transparent;padding:0;font:inherit;line-height:inherit;cursor:pointer;color:var(--quiet);transition:color 120ms ease}
+.text-action:hover,.text-action:focus-visible{color:var(--accent)}
+.icon-control{appearance:none;display:inline-grid;place-items:center;width:28px;height:28px;padding:0;border:1px solid rgba(206,201,255,.28);border-radius:50%;background:rgba(41,41,41,.88);color:var(--accent);font:inherit;cursor:pointer;transition:color 120ms ease,background-color 120ms ease,border-color 120ms ease}
+.icon-control:hover,.icon-control:focus-visible{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+html[data-theme="light"] .icon-control{border-color:rgba(87,88,86,.2);background:rgba(245,244,241,.88);color:var(--accent)}
+html[data-theme="light"] .icon-control:hover,html[data-theme="light"] .icon-control:focus-visible{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.divider{border:0;border-top:1px solid var(--hairline);margin:16px 0}
+@media(prefers-reduced-motion:reduce){.button,.text-action,.icon-control,.theme-toggle{transition:none!important}}
