@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.1 — 2026-09-09
+
+- Add the optional `fonts.css` entry for licensed Neue Montreal Medium (500), served as an immutable WOFF2 asset.
+- Preload the font in documentation and gallery pages; retain readable fallback text during loading or failure.
+- Update typography guidance and verify that browsers render the downloaded webfont.
+
 ## 1.1.0 — 2026-09-09
 
 - Keep the documentation sidebar mounted while navigating; update content, metadata and browser history together.
