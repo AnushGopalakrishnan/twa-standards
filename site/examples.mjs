@@ -27,7 +27,7 @@ export const examples = {
   },
   theme: {
     title:'Light and dark', html:themeMarkup,
-    setup(root) {mountTheme(root.querySelector('button'),{storageKey:'twa-standards-theme'});}
+    setup(root) {return mountTheme(root.querySelector('button'),{storageKey:'twa-standards-theme'});}
   },
   navigation: {
     title:'Current location',html:'<nav class="category-nav example-nav" aria-label="Example navigation">\n<a href="#navigation" aria-current="location"><span>Hero</span><span>12</span></a>\n<a href="#navigation"><span>Call to action</span><span>6</span></a>\n</nav>',
@@ -44,7 +44,7 @@ export const examples = {
   },
   signup: {
     title:'Signup dialog',html:'<button class="button button--primary" type="button" data-signup>Sign up</button>\n<label class="demo-setting"><input type="checkbox" data-error> Simulate a failed submission</label>\n<p class="demo-caption">Synthetic demo. No email is sent or saved.</p>',
-    setup(root) {mountSignup({trigger:root.querySelector('[data-signup]'),submit:async()=>{await new Promise(resolve=>setTimeout(resolve,700));if(root.querySelector('[data-error]').checked)throw new Error('Could not subscribe. Try again.');return 'Demo complete. No email was saved.';}});}
+    setup(root) {return mountSignup({trigger:root.querySelector('[data-signup]'),submit:async()=>{await new Promise(resolve=>setTimeout(resolve,700));if(root.querySelector('[data-error]').checked)throw new Error('Could not subscribe. Try again.');return 'Demo complete. No email was saved.';}}).dispose;}
   },
   gallery: {title:'Cards, category navigation and viewer',html:`<a class="button button--primary demo-launch" href="/examples/gallery/">Open gallery demo ${arrow}</a><p class="demo-caption">Six synthetic references. Includes image loading, theme switching, signup and viewer navigation.</p>`},
   retry: {

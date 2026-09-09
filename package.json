@@ -1,6 +1,6 @@
 {
   "name": "twa-standards",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "Tomorrow We Are foundations, components and optional Specimen patterns.",
   "type": "module",
   "files": [
@@ -20,7 +20,7 @@
   "scripts": {
     "build": "node scripts/build.mjs",
     "dev": "npm run build && node scripts/serve.mjs",
-    "test": "node test/site.mjs",
+    "test": "node test/site.mjs && node test/navigation.mjs",
     "deploy": "node scripts/deploy.cjs",
     "test:deploy": "node test/deploy.cjs"
   },
