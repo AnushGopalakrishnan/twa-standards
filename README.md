@@ -36,6 +36,7 @@ npm install --save-exact github:AnushGopalakrishnan/twa-standards#FULL_COMMIT_SH
 The release includes an npm tarball and receipt. The website's installation page shows the exact SHA used to build that deployment. Commit your dependency lockfile. Bundle the package at build time rather than loading it from a runtime CDN.
 
 ```js
+import 'twa-standards/fonts.css';
 import 'twa-standards/foundations.css';
 import 'twa-standards/components.css';
 import {mountTheme} from 'twa-standards';
