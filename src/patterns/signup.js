@@ -6,12 +6,16 @@ export function mountSignup({trigger, overlay = document.querySelector('.signup-
   const status = overlay.querySelector('.signup-status');
   const button = overlay.querySelector('.signup-submit');
   const background = new Map();
-  let overflow = '', returnFocus, attempt = 0, opening = false;
+  const listeners = new AbortController();
+  const options = {signal: listeners.signal};
+  let overflow = '', returnFocus, attempt = 0, opening = false, disposed = false;
   async function open() {
-    if (opening || !overlay.hidden) return;
+    if (disposed || opening || !overlay.hidden) return;
     opening = true;
+    const token = ++attempt;
     const opener = document.activeElement;
     try { await beforeOpen(); } finally { opening = false; }
+    if (disposed || token !== attempt) return;
     returnFocus = opener === document.body ? trigger : opener;
     overflow = document.body.style.overflow;
     overlay.hidden = false;
@@ -23,8 +27,9 @@ export function mountSignup({trigger, overlay = document.querySelector('.signup-
     }
     requestAnimationFrame(() => {if (!overlay.hidden) email.focus();});
   }
-  function close() {
+  function dismiss(restoreFocus) {
     attempt++;
+    if (overlay.hidden) return;
     overlay.hidden = true;
     document.body.style.overflow = overflow;
     for (const [node, inert] of background) node.inert = inert;
@@ -33,12 +38,18 @@ export function mountSignup({trigger, overlay = document.querySelector('.signup-
     email.removeAttribute('aria-invalid');
     button.disabled = false;
     form.removeAttribute('aria-busy');
-    (returnFocus?.isConnected ? returnFocus : trigger).focus();
+    if (restoreFocus) (returnFocus?.isConnected ? returnFocus : trigger).focus();
   }
-  trigger.addEventListener('click', open);
-  overlay.querySelector('.signup-close').addEventListener('click', close);
-  overlay.querySelector('.signup-cancel').addEventListener('click', close);
-  overlay.addEventListener('click', event => {if (event.target === overlay) close();});
+  function close() {dismiss(true);}
+  function dispose() {
+    disposed = true;
+    dismiss(false);
+    listeners.abort();
+  }
+  trigger.addEventListener('click', open, options);
+  overlay.querySelector('.signup-close').addEventListener('click', close, options);
+  overlay.querySelector('.signup-cancel').addEventListener('click', close, options);
+  overlay.addEventListener('click', event => {if (event.target === overlay) close();}, options);
   document.addEventListener('keydown', event => {
     if (overlay.hidden) return;
     if (event.key === 'Escape') {event.preventDefault(); close();}
@@ -48,8 +59,8 @@ export function mountSignup({trigger, overlay = document.querySelector('.signup-
     if (!overlay.contains(document.activeElement)) {event.preventDefault(); (event.shiftKey ? last : first).focus(); return;}
     if (event.shiftKey && document.activeElement === first) {event.preventDefault(); last.focus();}
     else if (!event.shiftKey && document.activeElement === last) {event.preventDefault(); first.focus();}
-  });
-  email.addEventListener('input', () => email.removeAttribute('aria-invalid'));
+  }, options);
+  email.addEventListener('input', () => email.removeAttribute('aria-invalid'), options);
   form.addEventListener('submit', async event => {
     event.preventDefault();
     if (button.disabled) return;
@@ -73,6 +84,6 @@ export function mountSignup({trigger, overlay = document.querySelector('.signup-
     } finally {
       if (token === attempt) {button.disabled = false; form.removeAttribute('aria-busy');}
     }
-  });
-  return {open, close};
+  }, options);
+  return {open, close, dispose};
 }

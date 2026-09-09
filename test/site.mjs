@@ -39,7 +39,7 @@ try {
  await page.locator('.sidebar .theme-toggle').click();assert.equal(await page.locator('html').getAttribute('data-theme'),'light');
  await page.goto(origin+'/components/email-input/');assert.equal(await page.locator('html').getAttribute('data-theme'),'light');
  await page.locator('form button').click();assert.equal(await page.locator('#example-email').getAttribute('aria-invalid'),'true');
- await page.locator('#example-email').fill('demo@example.com');await page.locator('form button').click();assert.equal(await page.locator('[role="status"]').textContent(),'Email format accepted.');
+ await page.locator('#example-email').fill('demo@example.com');await page.locator('form button').click();assert.equal(await page.locator('main [role="status"]').textContent(),'Email format accepted.');
  await page.goto(origin+'/patterns/signup-dialog/');
  await page.locator('[data-error]').check();await page.locator('[data-signup]').click();await page.locator('#signup-email').fill('demo@example.com');
  assert.equal(await page.locator('main').evaluate(el=>el.inert),true);

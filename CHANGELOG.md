@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.0 — 2026-09-09
+
+- Keep the documentation sidebar mounted while navigating; update content, metadata and browser history together.
+- Prefetch on hover/focus, reuse fetched pages, restore scroll and focus, and fall back to normal navigation on failures or a new deployment.
+- Publish content-hashed CSS/JavaScript with immutable caching while retaining fresh HTML and `no-transform`.
+- Add optional signup `dispose()` cleanup for page transitions, including pending host callbacks and submissions. Existing consumers retain the same open/close behavior.
+- Verify navigation races, repeated example mounting, mobile behavior, native links and no-JavaScript access.
+
 ## 1.0.2 — 2026-09-09
 
 - Keep Escape and Tab working when a pending signup submission causes focus to leave the disabled submit button.
