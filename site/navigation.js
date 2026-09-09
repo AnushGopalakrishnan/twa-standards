@@ -7,7 +7,7 @@ export function mountNavigation({mountPage}) {
   const positions = new Map();
   const key = url => url.pathname + url.search;
   let current = new URL(location.href), entry = history.state?.standardsEntry || crypto.randomUUID();
-  let sequence = 0, dispose, hovering;
+  let sequence = 0, dispose, hovering, warming;
   const status = document.createElement('p');
   status.className = 'navigation-status';
   status.setAttribute('role', 'status');
@@ -41,11 +41,11 @@ export function mountNavigation({mountPage}) {
     };
   }
 
-  function load(url) {
+  function load(url, priority = 'auto') {
     const id = key(url), existing = cache.get(id);
     if (existing && Date.now() - existing.time < 5 * 60 * 1000) return existing.promise;
     const record = {time: Date.now()};
-    record.promise = fetch(id, {signal: AbortSignal.timeout(10000)}).then(async response => {
+    record.promise = fetch(id, {signal: AbortSignal.timeout(10000), priority}).then(async response => {
       if (!response.ok || key(new URL(response.url)) !== id || !response.headers.get('content-type')?.includes('text/html')) {
         throw new Error('Page unavailable.');
       }
@@ -63,6 +63,7 @@ export function mountNavigation({mountPage}) {
   // Retain a pristine copy before any example interaction changes the initial page.
   cache.set(key(current), {time: Date.now(), promise: Promise.resolve(readPage(document.cloneNode(true)))});
   dispose = mountPage();
+  warmAdjacent();
 
   function focusContent(url, position) {
     let target;
@@ -114,6 +115,7 @@ export function mountNavigation({mountPage}) {
       entry = targetEntry;
       focusContent(url, position);
       rememberPosition();
+      warmAdjacent();
     } catch (_) {
       if (token === sequence) {
         // Includes a new release: never combine old JavaScript with new page markup.
@@ -148,8 +150,21 @@ export function mountNavigation({mountPage}) {
     const connection = navigator.connection;
     if (connection?.saveData || /(^|-)2g$/.test(connection?.effectiveType || '')) return;
     const url = eligible(link);
-    if (url && key(url) !== key(current)) void load(url).catch(() => {});
+    if (url && key(url) !== key(current)) void load(url, 'low').catch(() => {});
   }
+  // Only the two adjacent documents, after the current page has finished loading.
+  // Restart the timer on navigation so rapid clicks do not fan out background work.
+  function warmAdjacent() {
+    clearTimeout(warming);
+    warming = setTimeout(() => {
+      if (document.readyState !== 'complete') { warmAdjacent(); return; }
+      if (document.visibilityState !== 'visible') return;
+      document.querySelectorAll('.doc-pagination a').forEach(prefetch);
+    }, 300);
+  }
+  document.addEventListener('pointerdown', event => {
+    if (event.isPrimary && event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) prefetch(event.target.closest('a[href]'));
+  }, {passive: true});
   document.addEventListener('pointerover', event => {
     if (event.pointerType !== 'mouse') return;
     const link = event.target.closest('a[href]');

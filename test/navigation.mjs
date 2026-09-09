@@ -134,11 +134,32 @@ try {
  assert(Math.abs(await page.locator('#main').evaluate(el=>el.getBoundingClientRect().top))<2);
  assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
  await page.close();await context.close();
+ // Static imports are discovered in the head, without eagerly fetching optional counters.
+ const fast=await browser.newContext();const fastPage=await fast.newPage();
+ const fastRequests=[];fastPage.on('request',r=>fastRequests.push({url:r.url(),type:r.resourceType()}));
+ const adjacentResponses=Promise.all(['/foundations/','/foundations/typography/'].map(path=>fastPage.waitForResponse(origin+path)));
+ await fastPage.goto(origin+'/foundations/colors/');await ready(fastPage);
+ const hints=await fastPage.locator('link[rel="modulepreload"]').evaluateAll(nodes=>nodes.map(n=>n.href));
+ assert(hints.length>=2);
+ assert(fastRequests.filter(r=>r.type==='script').every(r=>hints.includes(r.url)),'All initial static modules must be preloaded');
+ assert(!fastRequests.some(r=>r.url.includes('/counter-')),'Counter module stays on demand');
+ const cssURL=await fastPage.locator('link[rel="stylesheet"]').getAttribute('href');
+ assert(fs.statSync('dist'+cssURL).size<39000,'Documentation CSS stays below 39 KB');
+ await adjacentResponses;
+ for(const path of ['/foundations/','/foundations/typography/'])assert.equal(fastRequests.filter(r=>r.url===origin+path&&r.type==='fetch').length,1);
+ await click(fastPage,'/foundations/typography/');
+ assert.equal(fastRequests.filter(r=>r.url===origin+'/foundations/typography/').length,1,'Adjacent page is reused');
+ const pressed=fastPage.locator('.sidebar a[href="/components/email-input/"]');
+ const pressedResponse=fastPage.waitForResponse(origin+'/components/email-input/');
+ await pressed.dispatchEvent('pointerdown',{pointerType:'touch',isPrimary:true,button:0});await pressedResponse;
+ await click(fastPage,'/components/email-input/');
+ assert.equal(fastRequests.filter(r=>r.url===origin+'/components/email-input/').length,1,'Touch press and click share the request');
+ await fast.close();
  // Save-Data suppresses speculation while keeping explicit navigation functional.
  const saver=await browser.newContext();await saver.addInitScript(()=>Object.defineProperty(navigator,'connection',{value:{saveData:true,effectiveType:'4g'}}));
  const saverPage=await saver.newPage();await saverPage.goto(origin+'/components/buttons/');await ready(saverPage);
  let fetches=0;saverPage.on('request',r=>{if(r.resourceType()==='fetch')fetches++;});
- const saverLink=saverPage.locator('.sidebar a[href="/components/email-input/"]');await saverLink.hover();await saverLink.focus();await saverPage.waitForTimeout(200);assert.equal(fetches,0);
+ const saverLink=saverPage.locator('.sidebar a[href="/components/email-input/"]');await saverLink.hover();await saverLink.focus();await saverLink.dispatchEvent('pointerdown',{pointerType:'touch',isPrimary:true,button:0});await saverPage.waitForTimeout(700);assert.equal(fetches,0);
  await click(saverPage,'/components/email-input/');assert.equal(fetches,1);await saver.close();
  // Direct fragments and plain links still work with JavaScript disabled.
  const plain=await browser.newContext({javaScriptEnabled:false});const plainPage=await plain.newPage();

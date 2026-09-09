@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.1.2 — 2026-09-09
+
+- Preload static JavaScript dependencies together to remove a network round trip from startup.
+- Minify cached stylesheets and prepare adjacent documentation pages at low priority after loading.
+- Start link preparation on touch/press; retain Save-Data, native navigation and release fallback behavior.
+- Shared package behavior and Specimen’s pinned release are unchanged.
+
 ## 1.1.1 — 2026-09-09
 
 - Add the optional `fonts.css` entry for licensed Neue Montreal Medium (500), served as an immutable WOFF2 asset.
