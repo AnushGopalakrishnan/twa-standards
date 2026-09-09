@@ -1,3 +1,5 @@
+import {mountTheme} from 'twa-standards';
+import {mountSignup} from 'twa-standards/patterns/signup.js';
 export const arrow = '<svg class="icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 17 17 7M7 7h10v10"/></svg>';
 export const previous = arrow.replace('M7 17 17 7M7 7h10v10','M19 12H5M12 5l-7 7 7 7');
 export const next = arrow.replace('M7 17 17 7M7 7h10v10','M5 12h14M12 5l7 7-7 7');
@@ -25,7 +27,7 @@ export const examples = {
   },
   theme: {
     title:'Light and dark', html:themeMarkup,
-    async setup(root) {const {mountTheme}=await import('twa-standards');mountTheme(root.querySelector('button'),{storageKey:'twa-standards-theme'});}
+    setup(root) {mountTheme(root.querySelector('button'),{storageKey:'twa-standards-theme'});}
   },
   navigation: {
     title:'Current location',html:'<nav class="category-nav example-nav" aria-label="Example navigation">\n<a href="#navigation" aria-current="location"><span>Hero</span><span>12</span></a>\n<a href="#navigation"><span>Call to action</span><span>6</span></a>\n</nav>',
@@ -33,7 +35,7 @@ export const examples = {
   },
   counter: {
     title:'Position in a collection',html:'<div class="demo-row"><span class="lightbox-count" aria-live="polite" aria-atomic="true"></span>\n<button class="text-action" type="button">Next reference</button></div>',
-    async setup(root) {const {updateCounter}=await import('twa-standards/counter');let value=1;const count=root.querySelector('.lightbox-count');updateCounter(count,value,12,{animated:false});root.querySelector('button').addEventListener('click',()=>{value=value%12+1;updateCounter(count,value,12);});}
+    setup(root) {const ready=import('twa-standards/counter');let value=1;const count=root.querySelector('.lightbox-count');const initial=ready.then(({updateCounter})=>updateCounter(count,value,12,{animated:false}));root.querySelector('button').addEventListener('click',async()=>{const {updateCounter}=await ready;value=value%12+1;updateCounter(count,value,12);});return initial;}
   },
   divider: {title:'Quiet separation',html:'<p>Collection details</p>\n<hr class="divider">\n<p class="demo-caption">Related actions</p>'},
   status: {
@@ -42,7 +44,7 @@ export const examples = {
   },
   signup: {
     title:'Signup dialog',html:'<button class="button button--primary" type="button" data-signup>Sign up</button>\n<label class="demo-setting"><input type="checkbox" data-error> Simulate a failed submission</label>\n<p class="demo-caption">Synthetic demo. No email is sent or saved.</p>',
-    async setup(root) {const {mountSignup}=await import('twa-standards/patterns/signup.js');mountSignup({trigger:root.querySelector('[data-signup]'),submit:async()=>{await new Promise(resolve=>setTimeout(resolve,700));if(root.querySelector('[data-error]').checked)throw new Error('Could not subscribe. Try again.');return 'Demo complete. No email was saved.';}});}
+    setup(root) {mountSignup({trigger:root.querySelector('[data-signup]'),submit:async()=>{await new Promise(resolve=>setTimeout(resolve,700));if(root.querySelector('[data-error]').checked)throw new Error('Could not subscribe. Try again.');return 'Demo complete. No email was saved.';}});}
   },
   gallery: {title:'Cards, category navigation and viewer',html:`<a class="button button--primary demo-launch" href="/examples/gallery/">Open gallery demo ${arrow}</a><p class="demo-caption">Six synthetic references. Includes image loading, theme switching, signup and viewer navigation.</p>`},
   retry: {

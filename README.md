@@ -14,7 +14,7 @@ npm run dev
 
 The loopback preview at port 3005 expires after one hour. `npm run build` generates the documentation and synthetic gallery into ignored `dist/`. `npm test` checks all documentation pages at desktop/mobile sizes, examples, focus restoration, reduced motion and the absence of external requests. `npm run test:deploy` verifies the production guard.
 
-Edit `site/pages.mjs` for documentation, `site/examples.mjs` for working examples, and `site/site.css` for documentation layout. Displayed snippets are generated from the same HTML and setup functions used by each example. Pattern pages also include their shared templates and full demo source. The gallery uses six synthetic local SVGs; signup callbacks simulate responses without sending or retaining email addresses. `_headers` limits network requests and prevents native form submission.
+Edit `site/pages.mjs` for documentation, `site/examples.mjs` for working examples, and `site/site.css` for documentation layout. Displayed snippets are generated from the same HTML and setup functions used by each example. Pattern pages also include their shared templates and full demo source. The gallery uses six synthetic local SVGs; signup callbacks simulate responses without sending or retaining email addresses. `_headers` limits network requests, prevents native form submission, and opts out of Cloudflare HTML transformations (including automatic analytics injection).
 
 ## Install a release
 

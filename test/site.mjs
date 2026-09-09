@@ -10,7 +10,7 @@ const browser=await chromium.launch();
 const errors=[],external=[];
 try {
  const context=await browser.newContext({viewport:{width:1440,height:1000}});
- await context.route('**/*',async route=>{if(new URL(route.request().url()).origin!==origin){external.push(route.request().url());return route.abort();}return route.continue();});
+ await context.route('**/*',async route=>{if(new URL(route.request().url()).origin!==origin){external.push(route.request().url());return route.abort();}if(route.request().url().includes('/counter-'))await new Promise(resolve=>setTimeout(resolve,350));return route.continue();});
  const page=await context.newPage();page.on('pageerror',error=>errors.push(error.message));
  // Core styling must work without the optional gallery/layout stylesheet.
  const coreCSS=fs.readFileSync('src/foundations.css','utf8')+fs.readFileSync('src/components.css','utf8');
@@ -50,7 +50,7 @@ try {
  await page.keyboard.press('Escape');assert.equal(await page.locator('main').evaluate(el=>el.inert),false);assert(await page.locator('[data-signup]').evaluate(el=>el===document.activeElement));
  await page.locator('[data-error]').uncheck();await page.locator('[data-signup]').click();await page.locator('.signup-submit').click();
  await page.waitForFunction(()=>document.querySelector('.signup-status').textContent==='Demo complete. No email was saved.');await page.keyboard.press('Escape');
- await page.goto(origin+'/components/counters/');await page.locator('[data-example="counter"] button').click();assert.equal(await page.locator('.lightbox-count').getAttribute('aria-label'),'2 / 12');
+ await page.goto(origin+'/components/counters/');await page.locator('[data-example="counter"] button').click();await page.waitForFunction(()=>document.querySelector('.lightbox-count').getAttribute('aria-label')==='2 / 12');assert.equal(await page.locator('.lightbox-count').getAttribute('aria-label'),'2 / 12');
  await page.emulateMedia({reducedMotion:'reduce'});await page.reload();await page.waitForSelector('number-flow');assert.equal(await page.locator('number-flow').evaluate(el=>el.animated),false);
  await page.goto(origin+'/patterns/placeholders/');await page.locator('[data-example="placeholder"] button').click();assert(await page.locator('.screen').evaluate(el=>el.classList.contains('is-loaded')));
  await page.goto(origin+'/examples/gallery/');await page.waitForSelector('.card');
