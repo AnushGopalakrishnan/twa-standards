@@ -1,6 +1,6 @@
 {
   "name": "twa-standards",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Tomorrow We Are foundations, components and optional Specimen patterns.",
   "type": "module",
   "files": [
