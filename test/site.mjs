@@ -7,10 +7,11 @@ import {createServer} from '../scripts/serve.mjs';
 const server=createServer();await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
 const origin=`http://127.0.0.1:${server.address().port}`;
 const browser=await chromium.launch();
+const fontURL=fs.readFileSync('src/fonts.css','utf8').match(/url\("([^"]+)"\)/)[1];
 const errors=[],external=[];
 try {
  const context=await browser.newContext({viewport:{width:1440,height:1000}});
- await context.route('**/*',async route=>{if(new URL(route.request().url()).origin!==origin){external.push(route.request().url());return route.abort();}if(route.request().url().includes('/counter-'))await new Promise(resolve=>setTimeout(resolve,350));return route.continue();});
+ await context.route('**/*',async route=>{if(route.request().url()!==fontURL&&new URL(route.request().url()).origin!==origin){external.push(route.request().url());return route.abort();}if(route.request().url().includes('/counter-'))await new Promise(resolve=>setTimeout(resolve,350));return route.continue();});
  const page=await context.newPage();page.on('pageerror',error=>errors.push(error.message));
  // Core styling must work without the optional gallery/layout stylesheet.
  const coreCSS=fs.readFileSync('src/foundations.css','utf8')+fs.readFileSync('src/components.css','utf8');
@@ -76,5 +77,5 @@ try {
   if(width===390)await page.locator('main').scrollIntoViewIfNeeded();
   await page.screenshot({path:`.context/qa/buttons-${theme}-${width}.png`});
  }
- console.log('PASS: 27 pages at desktop/mobile, local links, theme persistence, controls, form errors/success, focus trap/restoration, reduced motion, viewer navigation and zero external requests.');
+ console.log('PASS: 27 pages at desktop/mobile, local links, theme persistence, controls, form errors/success, focus trap/restoration, reduced motion, viewer navigation and no unexpected external requests.');
 } finally {await browser.close();await new Promise(resolve=>server.close(resolve));}

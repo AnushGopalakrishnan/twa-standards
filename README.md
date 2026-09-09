@@ -12,9 +12,9 @@ npx playwright install chromium
 npm run dev
 ```
 
-The loopback preview at port 3005 expires after one hour. `npm run build` generates the documentation and synthetic gallery into ignored `dist/`. `npm test` checks all documentation pages at desktop/mobile sizes, examples, focus restoration, reduced motion and the absence of external requests. Navigation checks cover partial page updates, history, scroll, focus, prefetching, cleanup and full-page fallbacks. `npm run test:deploy` verifies the production guard.
+The loopback preview at port 3005 expires after one hour. `npm run build` generates the documentation and synthetic gallery into ignored `dist/`. `npm test` checks all documentation pages at desktop/mobile sizes, examples, focus restoration, reduced motion and the absence of unexpected external requests. The only permitted external asset is the licensed webfont. Navigation checks cover partial page updates, history, scroll, focus, prefetching, cleanup and full-page fallbacks. `npm run test:deploy` verifies the production guard.
 
-Edit `site/pages.mjs` for documentation, `site/examples.mjs` for working examples, and `site/site.css` for documentation layout. Displayed snippets are generated from the same HTML and setup functions used by each example. Pattern pages also include their shared templates and full demo source. The gallery uses six synthetic local SVGs; signup callbacks simulate responses without sending or retaining email addresses. `_headers` limits network requests, prevents native form submission, and opts out of Cloudflare HTML transformations (including automatic analytics injection).
+Edit `site/pages.mjs` for documentation, `site/examples.mjs` for working examples, and `site/site.css` for documentation layout. The typography font is explicitly downloaded even when a matching local face is installed. Displayed snippets are generated from the same HTML and setup functions used by each example. Pattern pages also include their shared templates and full demo source. The gallery uses six synthetic local SVGs; signup callbacks simulate responses without sending or retaining email addresses. `_headers` limits network requests, prevents native form submission, and opts out of Cloudflare HTML transformations (including automatic analytics injection).
 
 ## Documentation navigation
 
@@ -36,13 +36,14 @@ npm install --save-exact github:AnushGopalakrishnan/twa-standards#FULL_COMMIT_SH
 The release includes an npm tarball and receipt. The website's installation page shows the exact SHA used to build that deployment. Commit your dependency lockfile. Bundle the package at build time rather than loading it from a runtime CDN.
 
 ```js
+import 'twa-standards/fonts.css';
 import 'twa-standards/foundations.css';
 import 'twa-standards/components.css';
 import {mountTheme} from 'twa-standards';
 mountTheme(document.querySelector('.theme-toggle'), {storageKey: 'your-project-theme'});
 ```
 
-Import CSS in that order. There are no hosted font assets; the font stack remains PP Neue Montreal, Neue Montreal, Arial, sans-serif. The CSS intentionally preserves Specimen's existing cascade and global document defaults. Scope or override it deliberately in projects with a different identity.
+Import CSS in that order. Import `twa-standards/fonts.css` to load the website’s licensed Neue Montreal Medium (500) WOFF2 from `content.tomorrowweare.com/standards/fonts/`. Standards and Specimen preload this immutable asset; the font stack remains PP Neue Montreal, Neue Montreal, Arial, sans-serif. `font-display: swap` keeps text readable during loading or failure. The font binary is hosted separately from the public source package. The CSS intentionally preserves Specimen's existing cascade and global document defaults. Scope or override it deliberately in projects with a different identity.
 
 ## Optional patterns
 

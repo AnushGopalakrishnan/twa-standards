@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
 import {chromium} from 'playwright';
 import {build} from 'esbuild';
 import {createServer} from '../scripts/serve.mjs';
@@ -7,6 +8,7 @@ import {pages,route as routeFor} from '../site/pages.mjs';
 const server=createServer();await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
 const origin=`http://127.0.0.1:${server.address().port}`;
 const browser=await chromium.launch();
+const fontURL=fs.readFileSync('src/fonts.css','utf8').match(/url\("([^"]+)"\)/)[1];
 const errors=[],external=[];
 const ready=page=>page.waitForFunction(()=>document.documentElement.dataset.standardsReady==='true');
 const click=async(page,path)=>{
@@ -17,7 +19,7 @@ const click=async(page,path)=>{
 try {
  const context=await browser.newContext({viewport:{width:1440,height:700}});
  await context.route('**/*',async route=>{
-  if(new URL(route.request().url()).origin!==origin){external.push(route.request().url());return route.abort();}
+  if(route.request().url()!==fontURL&&new URL(route.request().url()).origin!==origin){external.push(route.request().url());return route.abort();}
   return route.continue();
  });
  const page=await context.newPage();page.setDefaultTimeout(10000);page.on('pageerror',error=>errors.push(error.message));
