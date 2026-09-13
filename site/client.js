@@ -1,10 +1,11 @@
 import {mountTheme} from 'twa-standards';
 import {examples} from './examples.mjs';
 import {mountNavigation} from './navigation.js';
+import {mountStaticReferences} from './static-references.js';
 mountTheme(document.querySelector('.sidebar .theme-toggle'),{storageKey:'twa-standards-theme'});
 function mountPage() {
   let active=true;
-  const cleanups=[];
+  const cleanups=[mountStaticReferences()];
   document.documentElement.dataset.standardsReady='false';
   Promise.all([...document.querySelectorAll('[data-example]')].map(async root => {
     try {
@@ -27,9 +28,16 @@ document.addEventListener('keydown',event=>{
   menuButton.setAttribute('aria-expanded','false');menuButton.focus();
  }
 });
+const copyTimers=new WeakMap();
 document.addEventListener('click',async event=>{
  const button=event.target.closest('.copy-code');if(!button)return;
- const section=button.closest('.code-section'),status=section.querySelector('.copy-status');
- try{await navigator.clipboard.writeText(section.querySelector('code').textContent);status.textContent='Copied.';}
- catch{status.textContent='Copy unavailable. Select the code to copy it.';}
+ clearTimeout(copyTimers.get(button));
+ const label=button.querySelector('.copy-label');
+ try{
+  await navigator.clipboard.writeText(button.closest('.code-section').querySelector('code').textContent);
+  label.textContent='Copied';button.classList.add('is-copied');button.setAttribute('aria-label','Copied '+button.dataset.copyLabel.slice(5));
+ }catch{
+  label.textContent='Copy failed';button.classList.remove('is-copied');button.setAttribute('aria-label','Copy failed. Select the code to copy it manually.');
+ }
+ copyTimers.set(button,setTimeout(()=>{if(button.isConnected){label.textContent='Copy code';button.classList.remove('is-copied');button.setAttribute('aria-label',button.dataset.copyLabel);}},2000));
 });

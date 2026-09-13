@@ -7,6 +7,7 @@ import {build,transformSync} from 'esbuild';
 import {pages,route} from '../site/pages.mjs';
 import {examples,themeMarkup} from '../site/examples.mjs';
 import {createDemoRenderer} from './render-demo.mjs';
+import {createStaticReferences} from './static-references.mjs';
 const root=fileURLToPath(new URL('../',import.meta.url));
 process.chdir(root);
 const out=path.join(root,'dist');
@@ -48,12 +49,7 @@ function modulePreloads(entry) {
 const head=(title,url,css=standardsCSS,entry='site/client.js')=>`<!doctype html><html lang="en" data-standards-version="${version}" data-standards-revision="${revision}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Tomorrow We Are’s working reference for foundations, components and interface patterns."><title>${escape(title)} — Standards</title><link rel="canonical" href="https://standards.tomorrowweare.com${url}"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="preload" href="${fontURL}" as="font" type="font/woff2" crossorigin><link rel="stylesheet" href="${css}">${entry?modulePreloads(entry):''}<script>document.documentElement.classList.add('js');try{var theme=localStorage.getItem('twa-standards-theme');if(theme==='light'||theme==='dark')document.documentElement.dataset.theme=theme}catch(e){}</script></head>`;
 const groups=['Foundations','Components','Patterns','Project'];
 const nav=current=>groups.map(group=>`<div class="nav-group"><h2>${group}</h2>${pages.filter(page=>page.group===group).map(page=>`<a href="${route(page)}"${route(page)===current?' aria-current="location"':''}>${page.title}</a>`).join('')}</div>`).join('');
-const references={};
-for(const [name,asset] of Object.entries(JSON.parse(read('site/references/manifest.json')).assets)) {
- const data=fs.readFileSync('site/references/'+asset.file);
- const file=`assets/immutable/${name}-${createHash('sha256').update(data).digest('hex').slice(0,16)}.png`;
- write(file,data);references[name]={...asset,url:'/'+file};
-}
+const references=createStaticReferences({read,css:patternsCSS});
 const demo=createDemoRenderer({read,references,signup});
 for(const [index,page] of pages.entries()){
  const url=route(page);

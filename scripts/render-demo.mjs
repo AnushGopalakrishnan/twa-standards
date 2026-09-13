@@ -26,7 +26,7 @@ export function createDemoRenderer({ read, references, signup }) {
     });
     const language = parser === "html" ? "html" : "javascript";
     const highlighted = hljs.highlight(formatted.trim(), { language }).value;
-    return `<div class="code-section"><div class="code-label"><span>${label}</span><button class="copy-code" type="button" aria-label="Copy ${label}">Copy code</button><span class="copy-status" aria-live="polite"></span></div><pre tabindex="0" aria-label="${label} example"><code class="hljs language-${language}">${highlighted}</code></pre></div>`;
+    return `<div class="code-section"><div class="code-label"><span>${label}</span><button class="copy-code" type="button" aria-label="Copy ${label}" data-copy-label="Copy ${label}"><span class="copy-label" aria-live="polite">Copy code</span></button></div><pre tabindex="0" aria-label="${label} example"><code class="hljs language-${language}">${highlighted}</code></pre></div>`;
   }
   async function render(key) {
     const example = extraExamples[key] || examples[key],
@@ -57,23 +57,15 @@ export function createDemoRenderer({ read, references, signup }) {
         `<details class="demo-source"><summary>Complete gallery integration</summary><p class="code-explanation">The full application shell combines sidebar, gallery, signup and viewer. Only the relevant structure is shown above.</p>${await codeBlock("Gallery JavaScript", read("site/gallery-demo.js"), "babel")}${await codeBlock("Viewer template", read("src/patterns/viewer.html"), "html")}</details>`,
       );
     const referenceHTML = (presentation.references || "").replace(
-      /data-reference="([^"]+)"/g,
+      /<div data-reference-placeholder="([^"]+)"><\/div>/g,
       (_, name) => {
-        const asset = references[name];
-        if (!asset) throw Error("Missing reference image: " + name);
-        return `src="${asset.url}" width="${asset.width}" height="${asset.height}" alt="${escape(asset.description)}" data-reference="${name}"`;
+        const ref = references[name];
+        if (!ref) throw Error("Missing static reference: " + name);
+        return `<div class="reference-viewport" inert style="max-width:${ref.width}px;aspect-ratio:${ref.width}/${ref.height}"><iframe data-reference="${name}" data-width="${ref.width}" data-viewport="${ref.viewport}" data-height="${ref.height}" ${ref.theme ? `data-fixed-theme="${ref.theme}"` : ""} title="${name.replaceAll("-", " ")} static reference" tabindex="-1" loading="lazy" sandbox="allow-same-origin" srcdoc="${escape(ref.document)}"></iframe></div>`;
       },
     );
-    const expandedReferences = referenceHTML.replace(
-      /(<img[^>]+data-reference="([^"]+)"[^>]*>)/g,
-      (_, tag, name) =>
-        tag +
-        (references[name].width >= 390
-          ? `<a class="reference-fullsize" href="${references[name].url}" target="_blank" rel="noopener noreferrer">View full-size reference</a>`
-          : ""),
-    );
     const refs = referenceHTML
-      ? `<div class="demo-references"><h3>${pattern || key === "signup" ? "Reference views" : "At a glance"}</h3>${pattern || key === "signup" ? '<p class="reference-note">Captured from the shared components in the dark palette. Reference images are static; use the live demo to interact.</p>' : ""}${expandedReferences}</div>`
+      ? `<div class="demo-references"><h3>${pattern || key === "signup" ? "Reference views" : "At a glance"}</h3>${pattern || key === "signup" ? '<p class="reference-note">Static component markup. Use the live example to interact.</p>' : ""}${referenceHTML}</div>`
       : "";
     // The live example owns both its preview and its separate simulation toolbar.
     const live = example.html

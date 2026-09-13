@@ -1,6 +1,6 @@
 {
   "name": "twa-standards",
-  "version": "1.2.1",
+  "version": "1.3.0",
   "description": "Tomorrow We Are foundations, components and optional Specimen patterns.",
   "type": "module",
   "files": [
@@ -23,8 +23,7 @@
     "dev": "npm run build && node scripts/serve.mjs",
     "test": "node test/site.mjs && node test/navigation.mjs && node test/fonts.mjs && node test/presentation.mjs",
     "deploy": "node scripts/deploy.cjs",
-    "test:deploy": "node test/deploy.cjs",
-    "references:capture": "node scripts/capture-references.mjs"
+    "test:deploy": "node test/deploy.cjs"
   },
   "dependencies": {
     "number-flow": "0.6.2"
@@ -32,6 +31,7 @@
   "devDependencies": {
     "esbuild": "0.28.2",
     "highlight.js": "11.12.0",
+    "linkedom": "0.18.13",
     "playwright": "1.62.1",
     "prettier": "3.9.6",
     "wrangler": "4.129.1"
