@@ -26,6 +26,7 @@ try{
   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
   // Page changes keep the already loaded FontFace available.
   let fontRequests=0;page.on('request',r=>{if(r.url()===fontURL)fontRequests++;});
+  if(width===390)await page.locator('.docs-menu-toggle').click();
   await page.locator('.sidebar a[href="/components/buttons/"]').click();await page.waitForSelector('[data-example="button"]');
   await page.evaluate(()=>document.fonts.ready);assert.equal(fontRequests,0);
   assert.deepEqual(errors,[]);await context.close();

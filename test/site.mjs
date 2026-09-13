@@ -27,7 +27,7 @@ try {
    assert.equal(await page.locator('.sidebar [aria-current="location"]').getAttribute('href'),route(doc));
    assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),`Overflow on ${route(doc)} at ${width}`);
    for(const href of await page.locator('a[href^="/"]').evaluateAll(links=>links.map(link=>link.getAttribute('href')))){
-    const file=path.join('dist',href.split('#')[0],'index.html');assert(fs.existsSync(file),`Broken link ${href}`);
+    const pathname=new URL(href,origin).pathname;const file=path.join('dist',pathname,pathname.endsWith('/')?'index.html':'');assert(fs.existsSync(file),`Broken link ${href}`);
    }
   }
  }
@@ -44,22 +44,22 @@ try {
  await page.goto(origin+'/patterns/signup-dialog/');
  await page.locator('[data-error]').check();await page.locator('[data-signup]').click();await page.locator('#signup-email').fill('demo@example.com');
  assert.equal(await page.locator('main').evaluate(el=>el.inert),true);
- await page.locator('.signup-submit').click();await page.waitForFunction(()=>document.querySelector('.signup-status').textContent==='Could not subscribe. Try again.');
+ await page.locator('.signup-submit').click();await page.waitForFunction(()=>document.querySelector('.signup-overlay .signup-status').textContent==='Could not subscribe. Try again.');
  assert.equal(await page.locator('#signup-email').inputValue(),'demo@example.com');
  await page.locator('.signup-submit').focus();await page.keyboard.press('Tab');assert.equal(await page.evaluate(()=>document.activeElement.className),'signup-close');
  await page.keyboard.press('Shift+Tab');assert.equal(await page.evaluate(()=>document.activeElement.className),'button button--primary signup-submit');
  await page.keyboard.press('Escape');assert.equal(await page.locator('main').evaluate(el=>el.inert),false);assert(await page.locator('[data-signup]').evaluate(el=>el===document.activeElement));
  await page.locator('[data-error]').uncheck();await page.locator('[data-signup]').click();await page.locator('.signup-submit').click();
- await page.waitForFunction(()=>document.querySelector('.signup-status').textContent==='Demo complete. No email was saved.');
+ await page.waitForFunction(()=>document.querySelector('.signup-overlay .signup-status').textContent==='Demo complete. No email was saved.');
  // Disabling a focused submit button can move focus to body in real browsers.
  await page.evaluate(()=>document.activeElement.blur());await page.keyboard.press('Escape');
  assert(await page.locator('.signup-overlay').evaluate(el=>el.hidden));
  await page.locator('[data-signup]').click();await page.locator('#signup-email').fill('pending@example.com');await page.locator('.signup-submit').click();
  await page.evaluate(()=>document.activeElement.blur());await page.keyboard.press('Escape');await page.locator('[data-signup]').click();await page.locator('#signup-email').fill('reopened@example.com');
- await page.waitForTimeout(800);assert.equal(await page.locator('#signup-email').inputValue(),'reopened@example.com');assert.equal(await page.locator('.signup-status').textContent(),'');await page.keyboard.press('Escape');
+ await page.waitForTimeout(800);assert.equal(await page.locator('#signup-email').inputValue(),'reopened@example.com');assert.equal(await page.locator('.signup-overlay .signup-status').textContent(),'');await page.keyboard.press('Escape');
  await page.goto(origin+'/components/counters/');await page.locator('[data-example="counter"] button').click();await page.waitForFunction(()=>document.querySelector('.lightbox-count').getAttribute('aria-label')==='2 / 12');assert.equal(await page.locator('.lightbox-count').getAttribute('aria-label'),'2 / 12');
  await page.emulateMedia({reducedMotion:'reduce'});await page.reload();await page.waitForSelector('number-flow');assert.equal(await page.locator('number-flow').evaluate(el=>el.animated),false);
- await page.goto(origin+'/patterns/placeholders/');await page.locator('[data-example="placeholder"] button').click();assert(await page.locator('.screen').evaluate(el=>el.classList.contains('is-loaded')));
+ await page.goto(origin+'/patterns/placeholders/');await page.locator('[data-example="placeholder"] button').click();assert(await page.locator('[data-example="placeholder"] .screen').evaluate(el=>el.classList.contains('is-loaded')));
  await page.goto(origin+'/examples/gallery/');await page.waitForSelector('.card');
  assert.equal(await page.locator('#gallery .card').count(),3);
  await page.locator('.preview').first().click();await page.waitForFunction(()=>document.querySelector('.lightbox').open&&!document.querySelector('.lightbox').classList.contains('is-opening'));

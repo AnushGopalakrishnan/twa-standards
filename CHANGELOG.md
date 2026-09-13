@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.2.0 — 2026-09-13
+
+- Present all 18 interactive documentation pages with named states, instructions, proportional previews and related examples.
+- Add captured desktop/mobile pattern references, distinct border/icon inventories, and normal/reduced-motion comparisons.
+- Separate simulation controls from previews; clarify retry stages and give pattern demos contextual return links.
+- Add formatted HTML/JavaScript panels with Copy code, separate complete demo source, and a compact mobile documentation menu.
+- Keep reference content at build time and load hashed reference images lazily. Shared components and Specimen’s pinned release are unchanged.
+
 ## 1.1.2 — 2026-09-09
 
 - Preload static JavaScript dependencies together to remove a network round trip from startup.

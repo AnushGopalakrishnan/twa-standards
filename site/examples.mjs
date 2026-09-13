@@ -10,7 +10,7 @@ export const examples = {
     setup(root) { root.querySelector('button').addEventListener('click', () => { root.querySelector('[role="status"]').textContent = 'Action completed.'; }); }
   },
   'button-states': {
-    title:'Disabled and loading', html:'<div class="demo-row"><button class="button button--primary" type="button" disabled>Subscribe</button>\n<button class="button button--primary" type="button" data-loading>Subscribe</button></div>\n<label class="demo-setting"><input type="checkbox" data-state> Simulate loading</label>\n<p class="signup-status" role="status" aria-live="polite"></p>',
+    title:'Disabled and loading', html:'<div class="demo-surface"><button class="button button--primary" type="button" data-loading>Subscribe</button><p class="signup-status" role="status" aria-live="polite"></p></div><div class="demo-controls" role="group" aria-label="Demo controls"><p>Demo controls</p><label class="demo-setting"><input type="checkbox" data-state> Simulate loading</label></div>',
     setup(root) {const control=root.querySelector('[data-state]'), button=root.querySelector('[data-loading]');control.addEventListener('change',()=>{button.disabled=control.checked;button.setAttribute('aria-busy',String(control.checked));root.querySelector('[role="status"]').textContent=control.checked?'Subscribing…':'';});button.addEventListener('click',()=>{root.querySelector('[role="status"]').textContent='Action completed.';});}
   },
   'text-actions': {
@@ -37,18 +37,18 @@ export const examples = {
     title:'Position in a collection',html:'<div class="demo-row"><span class="lightbox-count" aria-live="polite" aria-atomic="true"></span>\n<button class="text-action" type="button">Next reference</button></div>',
     setup(root) {const ready=import('twa-standards/counter');let value=1;const count=root.querySelector('.lightbox-count');const initial=ready.then(({updateCounter})=>updateCounter(count,value,12,{animated:false}));root.querySelector('button').addEventListener('click',async()=>{const {updateCounter}=await ready;value=value%12+1;updateCounter(count,value,12);});return initial;}
   },
-  divider: {title:'Quiet separation',html:'<p>Collection details</p>\n<hr class="divider">\n<p class="demo-caption">Related actions</p>'},
+  divider: {title:'Quiet separation',html:'<div class="reference-column"><p>Collection details</p><hr class="divider"><p class="demo-caption">Related actions</p></div>'},
   status: {
-    title:'Loading, success and error',html:'<label for="status-choice">Simulated response</label>\n<select id="status-choice"><option value="loading">Loading</option><option value="success">Success</option><option value="error">Error</option></select>\n<p class="signup-status" role="status" aria-live="polite">Subscribing…</p>',
+    title:'Loading, success and error',html:'<div class="demo-surface"><p class="signup-status" role="status" aria-live="polite">Subscribing…</p></div><div class="demo-controls" role="group" aria-label="Demo controls"><p>Demo controls</p><label for="status-choice">Simulated response</label><select id="status-choice"><option value="loading">Loading</option><option value="success">Success</option><option value="error">Error</option></select></div>',
     setup(root) {root.querySelector('select').addEventListener('change',event=>{root.querySelector('[role="status"]').textContent={loading:'Subscribing…',success:'You’re subscribed.',error:'Could not subscribe. Try again.'}[event.target.value];});}
   },
   signup: {
-    title:'Signup dialog',html:'<button class="button button--primary" type="button" data-signup>Sign up</button>\n<label class="demo-setting"><input type="checkbox" data-error> Simulate a failed submission</label>\n<p class="demo-caption">Synthetic demo. No email is sent or saved.</p>',
+    title:'Signup dialog',html:'<div class="demo-surface"><button class="button button--primary" type="button" data-signup>Sign up</button><p class="demo-caption">Synthetic demo. No email is sent or saved.</p></div><div class="demo-controls" role="group" aria-label="Demo controls"><p>Demo controls</p><label class="demo-setting"><input type="checkbox" data-error> Simulate a failed submission</label></div>',
     setup(root) {return mountSignup({trigger:root.querySelector('[data-signup]'),submit:async()=>{await new Promise(resolve=>setTimeout(resolve,700));if(root.querySelector('[data-error]').checked)throw new Error('Could not subscribe. Try again.');return 'Demo complete. No email was saved.';}}).dispose;}
   },
   gallery: {title:'Cards, category navigation and viewer',html:`<a class="button button--primary demo-launch" href="/examples/gallery/">Open gallery demo ${arrow}</a><p class="demo-caption">Six synthetic references. Includes image loading, theme switching, signup and viewer navigation.</p>`},
   retry: {
-    title:'Unavailable collection',html:'<div data-result><p class="empty-gallery">The collection couldn’t load. Please try again.</p>\n<button class="text-action" type="button">Retry</button></div>\n<label class="demo-setting"><input type="checkbox" checked data-error> Simulate an error</label>\n<p class="signup-status" role="status" aria-live="polite"></p>',
+    title:'Unavailable collection',html:'<div class="demo-surface"><div data-result><h3 class="scenario-label">Starting state</h3><p class="empty-gallery">The collection couldn’t load. Please try again.</p><button class="text-action" type="button">Retry</button></div><div class="demo-result"><h3 class="scenario-label">Simulated result</h3><p class="signup-status" role="status" aria-live="polite">Choose Retry to run the selected scenario.</p></div></div><div class="demo-controls" role="group" aria-label="Demo controls"><p>Demo controls</p><label class="demo-setting"><input type="checkbox" checked data-error> Simulate an error</label></div>',
     setup(root) {const status=root.querySelector('[role="status"]');root.querySelector('button').addEventListener('click',async event=>{event.target.disabled=true;status.textContent='Loading collection…';await new Promise(resolve=>setTimeout(resolve,650));status.textContent=root.querySelector('[data-error]').checked?'The collection couldn’t load. Please try again.':'Collection loaded. Six references available.';event.target.disabled=false;});}
   },
   placeholder: {

@@ -1,0 +1,113 @@
+{
+  "sourceRevision": "e1e7913a8431f72bac2dfe201b548d1237bd3145",
+  "assets": {
+    "grid-desktop": {
+      "file": "grid-desktop.png",
+      "width": 960,
+      "height": 281,
+      "description": "desktop gallery layout at 1440px viewport width"
+    },
+    "gallery-card": {
+      "file": "gallery-card.png",
+      "width": 304,
+      "height": 245,
+      "description": "A gallery card, screenshot opener, title and Visit link"
+    },
+    "sidebar-desktop": {
+      "file": "sidebar-desktop.png",
+      "width": 400,
+      "height": 900,
+      "description": "desktop sidebar with identity, introduction, navigation and footer"
+    },
+    "viewer-desktop": {
+      "file": "viewer-desktop.png",
+      "width": 1440,
+      "height": 900,
+      "description": "desktop image viewer with the existing navigation, counter and actions"
+    },
+    "viewer-counter": {
+      "file": "viewer-counter.png",
+      "width": 24,
+      "height": 20,
+      "description": "Actual-size viewer counter"
+    },
+    "grid-tablet": {
+      "file": "grid-tablet.png",
+      "width": 496,
+      "height": 481,
+      "description": "tablet gallery layout at 900px viewport width"
+    },
+    "grid-mobile": {
+      "file": "grid-mobile.png",
+      "width": 342,
+      "height": 948,
+      "description": "mobile gallery layout at 390px viewport width"
+    },
+    "sidebar-mobile": {
+      "file": "sidebar-mobile.png",
+      "width": 390,
+      "height": 567,
+      "description": "mobile sidebar with identity, introduction, navigation and footer"
+    },
+    "viewer-mobile": {
+      "file": "viewer-mobile.png",
+      "width": 390,
+      "height": 900,
+      "description": "mobile image viewer with the existing navigation, counter and actions"
+    },
+    "signup-open": {
+      "file": "signup-open.png",
+      "width": 400,
+      "height": 238,
+      "description": "Open signup dialog"
+    },
+    "signup-invalid": {
+      "file": "signup-invalid.png",
+      "width": 400,
+      "height": 271,
+      "description": "Signup dialog with an invalid email message"
+    },
+    "signup-pending": {
+      "file": "signup-pending.png",
+      "width": 400,
+      "height": 271,
+      "description": "Signup dialog while submitting"
+    },
+    "signup-success": {
+      "file": "signup-success.png",
+      "width": 400,
+      "height": 271,
+      "description": "Signup dialog after a successful synthetic submission"
+    },
+    "signup-error": {
+      "file": "signup-error.png",
+      "width": 400,
+      "height": 271,
+      "description": "Signup dialog after a failed synthetic submission"
+    },
+    "theme-dark": {
+      "file": "theme-dark.png",
+      "width": 90,
+      "height": 21,
+      "description": "dark theme with a label naming the next available mode"
+    },
+    "theme-light": {
+      "file": "theme-light.png",
+      "width": 88,
+      "height": 21,
+      "description": "light theme with a label naming the next available mode"
+    },
+    "motion-normal": {
+      "file": "motion-normal.png",
+      "width": 360,
+      "height": 249,
+      "description": "normal motion screenshot hover reference"
+    },
+    "motion-reduced": {
+      "file": "motion-reduced.png",
+      "width": 360,
+      "height": 249,
+      "description": "reduced motion screenshot hover reference"
+    }
+  }
+}

@@ -66,6 +66,7 @@ export function mountNavigation({mountPage}) {
   warmAdjacent();
 
   function focusContent(url, position) {
+    document.querySelector('.docs-menu-toggle')?.setAttribute('aria-expanded','false');
     let target;
     try { target = url.hash && document.getElementById(decodeURIComponent(url.hash.slice(1))); } catch (_) {}
     target ||= document.querySelector('#main');

@@ -18,3 +18,18 @@ function mountPage() {
   return ()=>{active=false;cleanups.forEach(cleanup=>cleanup());};
 }
 mountNavigation({mountPage});
+
+// Documentation controls are mounted once; delegation also covers partial page updates.
+const menuButton=document.querySelector('.docs-menu-toggle');
+menuButton.addEventListener('click',()=>menuButton.setAttribute('aria-expanded',String(menuButton.getAttribute('aria-expanded')!=='true')));
+document.addEventListener('keydown',event=>{
+ if(event.key==='Escape'&&menuButton.getAttribute('aria-expanded')==='true'&&matchMedia('(max-width:760px)').matches){
+  menuButton.setAttribute('aria-expanded','false');menuButton.focus();
+ }
+});
+document.addEventListener('click',async event=>{
+ const button=event.target.closest('.copy-code');if(!button)return;
+ const section=button.closest('.code-section'),status=section.querySelector('.copy-status');
+ try{await navigator.clipboard.writeText(section.querySelector('code').textContent);status.textContent='Copied.';}
+ catch{status.textContent='Copy unavailable. Select the code to copy it.';}
+});

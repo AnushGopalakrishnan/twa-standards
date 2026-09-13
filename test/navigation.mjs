@@ -144,7 +144,7 @@ try {
  assert(fastRequests.filter(r=>r.type==='script').every(r=>hints.includes(r.url)),'All initial static modules must be preloaded');
  assert(!fastRequests.some(r=>r.url.includes('/counter-')),'Counter module stays on demand');
  const cssURL=await fastPage.locator('link[rel="stylesheet"]').getAttribute('href');
- assert(fs.statSync('dist'+cssURL).size<39000,'Documentation CSS stays below 39 KB');
+ assert(fs.statSync('dist'+cssURL).size<46000,'Documentation CSS stays below 46 KB including presentation references');
  await adjacentResponses;
  for(const path of ['/foundations/','/foundations/typography/'])assert.equal(fastRequests.filter(r=>r.url===origin+path&&r.type==='fetch').length,1);
  await click(fastPage,'/foundations/typography/');
