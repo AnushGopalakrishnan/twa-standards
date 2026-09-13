@@ -8,33 +8,33 @@ const status = (text) => `<p class="signup-status">${text}</p>`;
 const specimen = (label, markup, caption = "") =>
   `<figure class="state-reference"><figcaption>${label}</figcaption><div class="reference-content" inert>${markup}</div>${caption ? `<p class="reference-note">${caption}</p>` : ""}</figure>`;
 const states = (...items) => `<div class="state-grid">${items.join("")}</div>`;
-const image = (name, label, caption = "") =>
-  `<figure class="image-reference"><figcaption>${label}</figcaption><img data-reference="${name}" loading="lazy" decoding="async">${caption ? `<p class="reference-note">${caption}</p>` : ""}</figure>`;
-const images = (...items) =>
-  `<div class="reference-images">${items.join("")}</div>`;
+const reference = (name, label, caption = "") =>
+  `<figure class="markup-reference"><figcaption>${label}</figcaption><div data-reference-placeholder="${name}"></div>${caption ? `<p class="reference-note">${caption}</p>` : ""}</figure>`;
+const references = (...items) =>
+  `<div class="reference-grid">${items.join("")}</div>`;
 const guide = (items) =>
   `<dl class="anatomy">${items.map(([name, text]) => `<div><dt>${name}</dt><dd>${text}</dd></div>`).join("")}</dl>`;
 const patternLink = (from, label) =>
   `<a class="button button--primary demo-launch" href="/examples/gallery/?from=${from}">${label} ${arrow}</a>`;
 const placeholder = `<span class="screen has-placeholder" style="--image-placeholder:url('/assets/placeholder.webp')"><img src="/assets/example-1.svg" width="1440" height="900" alt=""></span>`;
-const signupSteps = images(
-  image("signup-open", "Open", "Focus begins in the email field."),
-  image(
+const signupSteps = references(
+  reference("signup-open", "Open", "Focus begins in the email field."),
+  reference(
     "signup-invalid",
     "Invalid email",
     "The same form with validation feedback.",
   ),
-  image(
+  reference(
     "signup-pending",
     "Submitting",
     "The existing disabled action and progress message.",
   ),
-  image(
+  reference(
     "signup-success",
     "Success",
     "A synthetic response; no email is saved.",
   ),
-  image(
+  reference(
     "signup-error",
     "Failure",
     "The entered address stays available for another attempt.",
@@ -174,9 +174,9 @@ export const presentations = {
   theme: {
     instruction:
       "This live example changes the entire documentation site and saves your preference. Its label always names the mode you can switch to.",
-    references: images(
-      image("theme-dark", "Current theme: Dark", "Action label: Light mode"),
-      image("theme-light", "Current theme: Light", "Action label: Dark mode"),
+    references: references(
+      reference("theme-dark", "Current theme: Dark", "Action label: Light mode"),
+      reference("theme-light", "Current theme: Light", "Action label: Dark mode"),
     ),
     markup: themeMarkup,
     javascript:
@@ -205,11 +205,11 @@ export const presentations = {
     instruction:
       "Choose Next reference to advance the sample position. This 24px inspection view is enlarged; the actual-size viewer reference is shown below.",
     references:
-      images(
-        image(
+      references(
+        reference(
           "viewer-counter",
           "Actual-size viewer counter",
-          "Captured from the viewer at its native 14px size.",
+          "The viewer’s native 14px counter, rendered without animation.",
         ),
       ) +
       guide([
@@ -338,13 +338,13 @@ export const presentations = {
     instruction:
       "Hover the screenshot to inspect the existing 4px lift. Each timing below links to its live example; normal and reduced-motion references explain what to observe.",
     references:
-      images(
-        image(
+      references(
+        reference(
           "motion-normal",
           "Normal motion",
           "The screenshot lifts 4px within its well.",
         ),
-        image(
+        reference(
           "motion-reduced",
           "Reduced motion",
           "The screenshot stays in its original position.",
@@ -419,13 +419,13 @@ export const presentations = {
     instruction:
       "Compare the desktop and mobile arrangements. The live example lets you explore the same sidebar with categories, theme switching, and signup.",
     references:
-      images(
-        image(
+      references(
+        reference(
           "sidebar-desktop",
           "Desktop · 1440px viewport",
           "A fixed sidebar; the footer settles at the bottom.",
         ),
-        image(
+        reference(
           "sidebar-mobile",
           "Mobile · 390px viewport",
           "The same content flows above the gallery.",
@@ -445,8 +445,8 @@ export const presentations = {
     instruction:
       "Inspect one card, then compare the existing one-, two-, and three-column layouts. Open the live gallery to explore categories and screenshots.",
     references:
-      images(
-        image(
+      references(
+        reference(
           "gallery-card",
           "Card anatomy",
           "The screenshot opens the viewer; the title and Visit link open the original site.",
@@ -457,10 +457,10 @@ export const presentations = {
         ["Title", "Index and reference name identify the item."],
         ["Visit link", "A separate destination from the screenshot opener."],
       ]) +
-      images(
-        image("grid-mobile", "One column · 390px viewport"),
-        image("grid-tablet", "Two columns · 900px viewport"),
-        image("grid-desktop", "Three columns · 1440px viewport"),
+      references(
+        reference("grid-mobile", "One column · 390px viewport"),
+        reference("grid-tablet", "Two columns · 900px viewport"),
+        reference("grid-desktop", "Three columns · 1440px viewport"),
       ),
     markup: '<main class="content" id="gallery"></main>',
     javascript:
@@ -471,13 +471,13 @@ export const presentations = {
     instruction:
       "Open the viewer demonstration, then select a screenshot. Use the arrows to browse and Escape to close. The reference views identify the controls before you enter the full demo.",
     references:
-      images(
-        image(
+      references(
+        reference(
           "viewer-desktop",
           "Desktop viewer",
           "The visible sidebar remains beside the screenshot and information rail.",
         ),
-        image(
+        reference(
           "viewer-mobile",
           "Mobile viewer",
           "The information rail moves below the screenshot.",

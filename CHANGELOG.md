@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.3.0 — 2026-09-13
+
+- Replace every captured component reference with static markup from shared templates and the gallery renderer. References are inert, contain no scripts, follow the documentation palette, and preserve desktop/mobile layouts.
+- Remove the screenshot assets and capture workflow. Only synthetic gallery image content remains.
+- Show Copied inside the copy button, preserve its width, and restore the default label after confirmation.
+- Simplify documentation typography to 14px body, 16px section headings and 12px supporting labels, retaining readable 13px code.
+- Shared component behavior and Specimen’s pinned release are unchanged.
+
 ## 1.2.1 — 2026-09-13
 
 - Add build-time Highlight.js syntax highlighting to every HTML and JavaScript example, with light/dark themes and no browser highlighter.
