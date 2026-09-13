@@ -26,7 +26,8 @@ function stylesheet(name, css) {
  const file=`assets/immutable/${name}-${hash}.css`;
  write(file,css);return '/'+file;
 }
-const standardsCSS=stylesheet('standards',sharedCSS+'\n'+read('site/site.css'));
+const highlightingCSS=['github-dark','github'].map((theme,index)=>`:where(:root${index?'[data-theme="light"]':':not([data-theme="light"])'}) {${read(`node_modules/highlight.js/styles/${theme}.css`)}}`).join('\n');
+const standardsCSS=stylesheet('standards',sharedCSS+'\n'+highlightingCSS+'\n'+read('site/site.css'));
 const patternsCSS=stylesheet('patterns',sharedCSS);
 const bundle=await build({entryPoints:['site/client.js','site/gallery-demo.js'],bundle:true,splitting:true,format:'esm',minify:true,metafile:true,outdir:path.join(out,'assets/immutable'),entryNames:'[name]-[hash]',chunkNames:'chunks/[name]-[hash]',target:['es2022'],logLevel:'warning',plugins:[{name:'runtime-examples',setup(b){b.onLoad({filter:/site\/examples\.mjs$/},()=>({contents:(read('site/examples.mjs').match(/^import .+$/gm)||[]).join('\n')+'\nexport const examples = {'+Object.entries(examples).filter(([,e])=>e.setup).map(([key,e])=>JSON.stringify(key)+':{setup:'+e.setup.toString().replace(/^(async )?setup\(/,(_,async='')=>`${async}function (`)+'}').join(',')+'};',loader:'js',resolveDir:path.join(root,'site')}));}}]});
 const entryURL=entry=>'/'+path.relative(out,path.resolve(Object.entries(bundle.metafile.outputs).find(([,info])=>info.entryPoint===entry)[0])).split(path.sep).join('/');

@@ -53,6 +53,13 @@ try {
         ),
         `Open code overflows ${route(doc)} at ${width}`,
       );
+      for (const snippet of await page.locator(".demo-code pre code").evaluateAll(nodes=>nodes.map(node=>({text:node.textContent,tokens:node.querySelectorAll('span[class^="hljs-"]').length,language:node.className})))) {
+        assert.equal(snippet.text, snippet.text.trim(), "Code must not start or end with blank lines");
+        assert(snippet.tokens>0, "Code must have build-time syntax highlighting");
+        assert(/language-(html|javascript)/.test(snippet.language));
+      }
+      assert.equal(await page.locator('.demo-code pre code').first().evaluate(node=>getComputedStyle(node).padding),'0px','Syntax theme must not add another layer of empty space');
+      assert(await page.locator('.demo-code pre').first().evaluate(node=>parseFloat(getComputedStyle(node).paddingTop)<parseFloat(getComputedStyle(node).lineHeight)), "Code padding should be less than one empty line");
       for (const asset of await page
         .locator("img[data-reference]")
         .evaluateAll((images) =>
@@ -99,6 +106,18 @@ try {
     await page.evaluate(() => navigator.clipboard.readText()),
     await code.locator("code").textContent(),
   );
+  await page.goto(origin + "/components/theme-toggle/");await ready();
+  await page.locator('.demo-code > summary').click();
+  const javascriptCode=page.locator('.code-section').filter({has:page.locator('code.language-javascript')}).first();
+  await javascriptCode.locator('.copy-code').click();
+  await page.waitForFunction(()=>document.querySelector('code.language-javascript').closest('.code-section').querySelector('.copy-status').textContent==='Copied.');
+  assert.equal(await page.evaluate(()=>navigator.clipboard.readText()),await javascriptCode.locator('code').textContent());
+  const colors=[];
+  for(const theme of ['dark','light']){
+    await page.evaluate(theme=>document.documentElement.dataset.theme=theme,theme);
+    colors.push(await javascriptCode.locator('.hljs-keyword').first().evaluate(node=>getComputedStyle(node).color));
+  }
+  assert.notEqual(colors[0],colors[1],"Syntax colors follow the documentation theme");
   await page.goto(origin + "/patterns/retry-states/");
   await ready();
   await page.locator("[data-error]").uncheck();

@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.1 — 2026-09-13
+
+- Add build-time Highlight.js syntax highlighting to every HTML and JavaScript example, with light/dark themes and no browser highlighter.
+- Tighten code-panel spacing and preserve plain-text clipboard output.
+
 ## 1.2.0 — 2026-09-13
 
 - Present all 18 interactive documentation pages with named states, instructions, proportional previews and related examples.

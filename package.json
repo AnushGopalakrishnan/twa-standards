@@ -1,6 +1,6 @@
 {
   "name": "twa-standards",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Tomorrow We Are foundations, components and optional Specimen patterns.",
   "type": "module",
   "files": [
@@ -31,6 +31,7 @@
   },
   "devDependencies": {
     "esbuild": "0.28.2",
+    "highlight.js": "11.12.0",
     "playwright": "1.62.1",
     "prettier": "3.9.6",
     "wrangler": "4.129.1"

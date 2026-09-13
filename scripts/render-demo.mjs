@@ -1,4 +1,9 @@
 import { format } from "prettier";
+import hljs from "highlight.js/lib/core";
+import html from "highlight.js/lib/languages/xml";
+import javascript from "highlight.js/lib/languages/javascript";
+hljs.registerLanguage("html", html);
+hljs.registerLanguage("javascript", javascript);
 import { examples } from "../site/examples.mjs";
 import { presentations, extraExamples } from "../site/presentation.mjs";
 const escape = (value) =>
@@ -19,7 +24,9 @@ export function createDemoRenderer({ read, references, signup }) {
       singleQuote: true,
       htmlWhitespaceSensitivity: "ignore",
     });
-    return `<div class="code-section"><div class="code-label"><span>${label}</span><button class="copy-code" type="button" aria-label="Copy ${label}">Copy code</button><span class="copy-status" aria-live="polite"></span></div><pre tabindex="0" aria-label="${label} example"><code>${escape(formatted.trimEnd())}</code></pre></div>`;
+    const language = parser === "html" ? "html" : "javascript";
+    const highlighted = hljs.highlight(formatted.trim(), { language }).value;
+    return `<div class="code-section"><div class="code-label"><span>${label}</span><button class="copy-code" type="button" aria-label="Copy ${label}">Copy code</button><span class="copy-status" aria-live="polite"></span></div><pre tabindex="0" aria-label="${label} example"><code class="hljs language-${language}">${highlighted}</code></pre></div>`;
   }
   async function render(key) {
     const example = extraExamples[key] || examples[key],
