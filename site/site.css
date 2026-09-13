@@ -23,7 +23,7 @@
 .doc-body ul{padding-left:20px;margin:0 0 24px}
 .doc-body li{padding-left:3px;margin-bottom:12px}
 .standards .doc-body a{color:var(--accent)}
-.doc-body code,.demo-code code{font-size:.8em;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-weight:400}
+.doc-body code,.demo-code code{font-size:13px;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-weight:400}
 .doc-body p code,.doc-body li code{overflow-wrap:anywhere;color:var(--ink)}
 pre{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.65;margin:0;padding:24px;background:var(--accent-soft);border:1px solid var(--hairline);tab-size:2}
 .doc-body pre{margin:16px 0 24px}
