@@ -144,6 +144,22 @@ export function mountGallery(sections, standalone) {
       return rect;
     }
 
+    // Standalone image feeds can hit the height cap before filling the stage.
+    // Animate their painted, contained image bounds rather than its wider box.
+    // Specimen retains its existing measurements and animation behavior.
+    function imageBounds(image){
+      var rect=image.getBoundingClientRect();
+      if(!standalone){return rect;}
+      var width=image.naturalWidth||Number(image.getAttribute('width'));
+      var height=image.naturalHeight||Number(image.getAttribute('height'));
+      if(!width||!height){return rect;}
+      var scale=Math.min(rect.width/width,rect.height/height);
+      var fittedWidth=width*scale,fittedHeight=height*scale;
+      var left=rect.left+(rect.width-fittedWidth)/2;
+      var top=rect.top+(rect.height-fittedHeight)/2;
+      return {x:left,y:top,left:left,top:top,right:left+fittedWidth,bottom:top+fittedHeight,width:fittedWidth,height:fittedHeight};
+    }
+
     function cardSource(preview){
       var image=preview.querySelector('img');
       var screen=preview.querySelector('.screen');
@@ -378,9 +394,9 @@ export function mountGallery(sections, standalone) {
       }
       if(token!==navigationToken||!dialog.open){return;}
       var openingRect=interruptOpening();
-      var primaryRect=viewerImage.getBoundingClientRect();
-      var peekRect=peekImage.getBoundingClientRect();
-      var previousPeekRect=previousPeekImage.getBoundingClientRect();
+      var primaryRect=imageBounds(viewerImage);
+      var peekRect=imageBounds(peekImage);
+      var previousPeekRect=imageBounds(previousPeekImage);
       var stageRect=stage.getBoundingClientRect();
       var outgoingSrc=viewerImage.currentSrc||viewerImage.src;
       var oldPeekSrc=peekImage.currentSrc||peekImage.src;
@@ -419,7 +435,7 @@ export function mountGallery(sections, standalone) {
         return {image:image,animation:animation};
       }
       render(destination.index,{imageSrc:navigationSrc});
-      var targetRect=viewerImage.getBoundingClientRect();
+      var targetRect=imageBounds(viewerImage);
       var visibleDestination=snapshots.find(function(snapshot){return snapshot.index===destination.index;});
       var nextIndex=itemAt(destination.index+1).index;
       var previousIndex=itemAt(destination.index-1).index;
@@ -557,7 +573,7 @@ export function mountGallery(sections, standalone) {
       document.body.classList.add('lightbox-page-shift');
       if(!canAnimate){finishOpenTransition(token,null,index);return;}
       var dialogRect=dialog.getBoundingClientRect();
-      var targetRect=viewerImage.getBoundingClientRect();
+      var targetRect=imageBounds(viewerImage);
       if(!targetRect.width||!targetRect.height){finishOpenTransition(token,null,index);return;}
       transitionImage.style.left=(targetRect.left-dialogRect.left)+'px';
       transitionImage.style.top=(targetRect.top-dialogRect.top)+'px';
@@ -608,7 +624,7 @@ export function mountGallery(sections, standalone) {
       revealCurrentCard();
       var sourceFrame=activeSourceFrame;
       var sourceRect=sourceFrame?sourceFrame.getBoundingClientRect():null;
-      var targetRect=movingRect||viewerImage.getBoundingClientRect();
+      var targetRect=movingRect||imageBounds(viewerImage);
       var content=document.querySelector('.content');
       var contentTransform=content?getComputedStyle(content).transform:'none';
       var contentShift=contentTransform&&contentTransform!=='none'?new DOMMatrix(contentTransform).m41:0;
