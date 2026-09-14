@@ -1,9 +1,9 @@
 import {updateCounter as renderCounter} from '../counter.js';
 
 /** Mount once per document. Sections are detached or mounted DOM from createGallerySections. */
-export function mountLightbox({root, dialog=document.getElementById('lightbox'), background=[]}) {
+export function mountLightbox({root, dialog=document.getElementById('lightbox'), background=[], groupSelector}) {
     dialog.dataset.standalone='';
-    return mountGallery([], {root, dialog, background});
+    return mountGallery([], {root, dialog, background, groupSelector});
 }
 
 export function mountGallery(sections, standalone) {
@@ -340,7 +340,7 @@ export function mountGallery(sections, standalone) {
 
     async function moveViewer(delta){
       if(!dialog.open||dialog.classList.contains('is-closing')){return;}
-      if(!delta){return;}
+      if(!delta||previews.length<2){return;}
       var destination=itemAt((requestedIndex<0?currentIndex:requestedIndex)+delta);
       requestedIndex=destination.index;
       var reduceMotion=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -659,6 +659,12 @@ export function mountGallery(sections, standalone) {
       var preview=event.target.closest('.preview');
       if(!preview||event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey){return;}
       event.preventDefault();
+      if(standalone&&standalone.groupSelector){
+        clearPreloads();
+        var group=preview.closest(standalone.groupSelector);
+        previews=group?Array.from(group.querySelectorAll('.preview')):[preview];
+        dialog.classList.toggle('is-single-image',previews.length===1);
+      }
       openViewer(previews.indexOf(preview),preview);
     });
 
