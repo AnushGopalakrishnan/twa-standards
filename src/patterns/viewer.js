@@ -1,14 +1,20 @@
 import {updateCounter as renderCounter} from '../counter.js';
 
 /** Mount once per document. Sections are detached or mounted DOM from createGallerySections. */
-export function mountGallery(sections) {
-    var gallery=document.getElementById('gallery');
+export function mountLightbox({root, dialog=document.getElementById('lightbox'), background=[]}) {
+    dialog.dataset.standalone='';
+    return mountGallery([], {root, dialog, background});
+}
+
+export function mountGallery(sections, standalone) {
+    var gallery=standalone?standalone.root:document.getElementById('gallery');
     var categoryLinks=Array.prototype.slice.call(document.querySelectorAll('.category-nav a[data-category]'));
-    var dialog=document.getElementById('lightbox');
-    var previews=[];
+    var dialog=standalone?standalone.dialog:document.getElementById('lightbox');
+    var previews=standalone?Array.from(gallery.querySelectorAll('.preview')):[];
     var activeSectionId='';
 
     function categoryFromURL(){
+      if(standalone){return null;}
       var url=new URL(location.href);
       if(!url.searchParams.has('category')&&sections.some(function(section){return section.id===url.hash.slice(1);})) {
         url.searchParams.set('category',url.hash.slice(1));
@@ -19,6 +25,7 @@ export function mountGallery(sections) {
     }
 
     function selectCategory(id,scroll){
+      if(standalone){return;}
       var section=sections.find(function(section){return section.id===id;})||sections[0];
       if(!section||section.id===activeSectionId){return;}
       // Keep the current viewer's cards until its close animation finishes.
@@ -53,6 +60,7 @@ export function mountGallery(sections) {
     window.addEventListener('hashchange',function(){selectCategory(categoryFromURL(),true);});
 
     if(!dialog||typeof dialog.show!=='function'||!previews.length){return {close: function(){}};}
+    dialog.classList.toggle('is-single-image',previews.length===1);
     var viewerImage=dialog.querySelector('.lightbox-image');
     var peekImage=dialog.querySelector('.lightbox-peek');
     var peekButton=peekImage.parentElement;
@@ -74,7 +82,16 @@ export function mountGallery(sections) {
     var sidebar=document.querySelector('.sidebar');
     var contentArea=document.querySelector('.content');
     var skipLink=document.querySelector('.skip');
+    var previousInert=new Map();
     function setViewerBackground(active){
+      if(standalone){
+        standalone.background.forEach(function(element){
+          if(active){if(!previousInert.has(element)){previousInert.set(element,element.inert);}element.inert=true;}
+          else if(previousInert.has(element)){element.inert=previousInert.get(element);}
+        });
+        if(!active){previousInert.clear();}
+        return;
+      }
       contentArea.inert=active;
       sidebar.inert=active&&window.matchMedia('(max-width:1249px)').matches;
       skipLink.inert=active;
@@ -202,7 +219,7 @@ export function mountGallery(sections) {
       if(target.matches('.category-nav a')){warmCategory(target);}
       else{var index=previews.indexOf(target);if(index>=0){warmScreenshot(index,'low');}}
     }
-    [gallery,document.querySelector('.category-nav')].forEach(function(root){
+    [gallery,standalone?null:document.querySelector('.category-nav')].filter(Boolean).forEach(function(root){
       function targetOf(event){return event.target.closest('.preview,.category-nav a');}
       root.addEventListener('pointerover',function(event){
         var target=targetOf(event);
@@ -293,6 +310,7 @@ export function mountGallery(sections) {
       category.textContent=item.category;
       downloadLink.href=item.originalSrc;
       downloadLink.setAttribute('download',item.originalSrc.split('/').pop()||'screenshot.png');
+      liveLink.hidden=!item.live;
       liveLink.href=item.live;
       liveLink.setAttribute('aria-label','View '+item.site+' live page in a new tab');
       previousButton.setAttribute('aria-label','Previous screenshot: '+previous.site);
@@ -557,7 +575,8 @@ export function mountGallery(sections) {
     function revealCurrentCard(){
       var preview=previews[currentIndex];
       if(!preview){return;}
-      if(!returnFocus||!sidebar.contains(returnFocus)){returnFocus=preview;}
+      if(!returnFocus||(!sidebar||!sidebar.contains(returnFocus))){returnFocus=preview;}
+      if(standalone){preview.scrollIntoView({block:'nearest',inline:'nearest',behavior:'instant'});}
       var card=preview.closest('.card')||preview;
       var rect=card.getBoundingClientRect();
       var inset=16;
@@ -582,7 +601,7 @@ export function mountGallery(sections) {
       var sourceRect=sourceFrame?sourceFrame.getBoundingClientRect():null;
       var targetRect=movingRect||viewerImage.getBoundingClientRect();
       var content=document.querySelector('.content');
-      var contentTransform=getComputedStyle(content).transform;
+      var contentTransform=content?getComputedStyle(content).transform:'none';
       var contentShift=contentTransform&&contentTransform!=='none'?new DOMMatrix(contentTransform).m41:0;
       var canAnimate=sourceFrame&&sourceRect&&sourceRect.width&&sourceRect.height&&targetRect.width&&targetRect.height&&!reduceMotion&&typeof sourceFrame.animate==='function';
       if(!canAnimate){document.body.classList.remove('lightbox-page-shift');clearActiveSource();dialog.close();return;}

@@ -1,0 +1,198 @@
+/* Generated from specimen.css by scripts/extract-viewer-css.mjs. Do not edit. */
+
+.lightbox{inset:0;width:100vw;height:100dvh;max-width:none;max-height:none;margin:0;padding:0;border:0;background:#0a0a0a;color:#fff;font:inherit;overflow:hidden}
+.lightbox::backdrop{background:rgba(0,0,0,.92)}
+.lightbox[open]{display:block}
+.lightbox-shell{height:100%;display:grid;grid-template-rows:auto minmax(0,1fr)}
+.lightbox-bar{min-height:64px;padding:0 24px;display:flex;align-items:center;justify-content:space-between;gap:24px;border-bottom:1px solid rgba(255,255,255,.14);background:#0a0a0a}
+.lightbox-meta,.lightbox-actions{display:flex;align-items:center;gap:18px;min-width:0}
+.lightbox-category{color:rgba(255,255,255,.5);white-space:nowrap}
+.lightbox-title{margin:0;max-width:34vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:inherit}
+.lightbox button,.lightbox a{font:inherit;font-weight:inherit;color:inherit}
+.lightbox button{appearance:none;border:0;background:transparent;padding:8px 0;cursor:pointer}
+.lightbox-action{white-space:nowrap;transition:opacity .15s ease}
+.lightbox-action:hover,.lightbox-action:focus-visible{opacity:.55}
+.lightbox-stage{position:relative;min-height:0;display:grid;place-items:center;overflow:hidden;overscroll-behavior:contain;touch-action:pan-y;padding:32px 88px;background:#111}
+.lightbox-figure{width:100%;height:100%;min-height:0;margin:0;display:grid;place-items:center}
+.lightbox-image{display:block;max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;box-shadow:0 24px 80px rgba(0,0,0,.5);cursor:default;opacity:1;transition:opacity .16s ease}
+.lightbox-image.is-loading{opacity:1}
+.lightbox-nav{position:absolute;z-index:2;top:50%;width:44px;height:44px!important;padding:0!important;display:grid;place-items:center;border:1px solid rgba(255,255,255,.2)!important;border-radius:50%!important;background:rgba(10,10,10,.7)!important;transform:translateY(-50%);transition:background .15s ease,border-color .15s ease}
+.lightbox-nav:hover,.lightbox-nav:focus-visible{background:#fff!important;border-color:#fff!important;color:#000}
+.lightbox-prev{left:24px}
+.lightbox-next{right:24px}
+.lightbox-status{position:absolute;left:50%;top:50%;margin:0;transform:translate(-50%,-50%);color:rgba(255,255,255,.64);pointer-events:none}
+.lightbox:focus-visible{outline:0}
+.lightbox button:focus-visible,.lightbox a:focus-visible{outline:2px solid #fff;outline-offset:3px}
+@media(max-width:760px){
+.lightbox-bar{min-height:104px;padding:14px 16px;align-items:flex-start;flex-direction:column;gap:8px}
+.lightbox-meta,.lightbox-actions{width:100%}
+.lightbox-meta{justify-content:space-between}
+.lightbox-title{max-width:50vw}
+.lightbox-actions{gap:16px;overflow-x:auto}
+.lightbox-stage{padding:20px 58px}
+.lightbox-prev{left:10px}
+.lightbox-next{right:10px}
+}
+@media(prefers-reduced-motion:reduce){
+.lightbox-image,.lightbox-nav{transition:none}
+}
+.lightbox{background:var(--bg);color:var(--ink)}
+.lightbox::backdrop{background:rgba(41,41,41,.96)}
+.lightbox-bar{background:var(--bg);border-color:var(--hairline)}
+.lightbox-category,.lightbox-status{color:var(--muted)}
+.lightbox .lightbox-action{color:var(--accent)}
+.lightbox-stage{background:rgba(206,201,255,.04)}
+.lightbox-image{box-shadow:0 24px 80px rgba(41,41,41,.72)}
+.lightbox-nav{border-color:rgba(206,201,255,.28)!important;background:rgba(41,41,41,.88)!important;color:var(--accent)!important}
+.lightbox-nav:hover,.lightbox-nav:focus-visible{background:var(--accent)!important;border-color:var(--accent)!important;color:var(--bg)!important}
+.lightbox button:focus-visible,.lightbox a:focus-visible{outline-color:var(--focus-ring)}
+.lightbox-action{transition:color 120ms ease,opacity 120ms ease}
+.lightbox-nav{transition:color 120ms ease,background-color 120ms ease,border-color 120ms ease}
+@media(prefers-reduced-motion:reduce){
+.lightbox-action,.lightbox-nav{transition:none}
+}
+.lightbox-transition-image{position:fixed;z-index:5;display:block;max-width:none;max-height:none;margin:0;object-fit:cover;object-position:top;pointer-events:none;transform-origin:top left;will-change:transform,box-shadow}
+.lightbox.is-opening .lightbox-image{opacity:0!important;transition:none!important}
+.lightbox.is-opening .lightbox-meta{animation:lightbox-ui-in 210ms 70ms cubic-bezier(.22,1,.36,1) both}
+.lightbox.is-opening .lightbox-actions{animation:lightbox-ui-in 210ms 90ms cubic-bezier(.22,1,.36,1) both}
+.lightbox.is-opening .lightbox-nav{animation:lightbox-nav-in 180ms 110ms cubic-bezier(.22,1,.36,1) both}
+.lightbox.is-opening .lightbox-status{opacity:0}
+.lightbox.is-opening::backdrop{animation:lightbox-backdrop-in 220ms ease-out both}
+@keyframes lightbox-ui-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+@keyframes lightbox-nav-in{from{opacity:0;transform:translateY(-50%) scale(.96)}to{opacity:1;transform:translateY(-50%) scale(1)}}
+@keyframes lightbox-backdrop-in{from{background:rgba(41,41,41,0)}to{background:rgba(41,41,41,.96)}}
+@media(prefers-reduced-motion:reduce){
+.lightbox.is-opening .lightbox-meta,.lightbox.is-opening .lightbox-actions,.lightbox.is-opening .lightbox-nav,.lightbox.is-opening::backdrop{animation:none}
+}
+.lightbox-copy:disabled{opacity:.45;cursor:wait}
+.lightbox .lightbox-action{color:var(--quiet);opacity:1}
+.lightbox .lightbox-action:hover,.lightbox .lightbox-action:focus-visible{color:var(--accent);opacity:1}
+.lightbox .lightbox-copy:disabled{color:var(--quiet);opacity:.45}
+.lightbox{left:400px;top:0;width:calc(100vw - 400px);height:100dvh;background:transparent}
+.lightbox::backdrop{background:transparent}
+.lightbox-shell{display:grid;grid-template-columns:292px minmax(0,1fr);grid-template-rows:1fr}
+.lightbox-bar{height:100%;min-height:0;padding:64px 20px 24px;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;border:0;border-right:1px solid var(--hairline);background:var(--bg)}
+.lightbox-meta{display:flex;flex-direction:column;align-items:flex-start;gap:2px;margin-top:24px}
+.lightbox-title{order:2;max-width:100%;font-size:1rem;white-space:normal}
+.lightbox-category{order:1}
+.lightbox-actions{margin-top:0;padding-top:16px;display:flex;flex-direction:column;align-items:flex-start;gap:5px;border-top:1px solid var(--hairline)}
+.lightbox-actions .lightbox-action{padding:0}
+.lightbox-close{position:absolute;left:20px;top:15px;width:28px;height:28px!important;padding:0!important;display:grid!important;place-items:center;border-radius:50%!important;background:var(--well)!important;font-size:0!important}
+.lightbox-close span{font-size:.875rem}
+.lightbox-stage{display:flex;align-items:center;justify-content:flex-start;gap:56px;padding:64px 48px 48px;overflow:hidden;background:rgba(41,41,41,.68);backdrop-filter:blur(8px)}
+.lightbox-figure{flex:0 0 calc(100% - 72px);width:auto;height:auto;min-height:0;display:grid;place-items:center}
+.lightbox-image{width:100%;height:auto;max-height:calc(100dvh - 112px);object-fit:contain;box-shadow:none}
+.lightbox-peek{display:block;flex:0 0 calc(75% - 72px);width:calc(75% - 72px);height:auto;max-height:calc(100dvh - 184px);object-fit:contain;opacity:.58}
+.lightbox-nav{top:15px;width:28px;height:28px!important;transform:none}
+.lightbox-prev{left:20px}
+.lightbox-next{left:56px;right:auto}
+.lightbox-status{z-index:3}
+.lightbox.is-switching .lightbox-image{opacity:.22;transform:translateX(-6px)}
+.lightbox-image{transition:opacity 120ms ease,transform 160ms cubic-bezier(.22,1,.36,1)}
+@keyframes lightbox-nav-in{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+.lightbox.is-opening::backdrop{animation:none}
+html[data-theme="light"] .lightbox{background:transparent;color:#575856}
+html[data-theme="light"] .lightbox::backdrop{background:transparent}
+html[data-theme="light"] .lightbox-bar{background:#F5F4F1;border-color:rgba(87,88,86,.12)}
+html[data-theme="light"] .lightbox-stage{background:rgba(245,244,241,.72)}
+html[data-theme="light"] .lightbox-nav{border-color:rgba(87,88,86,.2)!important;background:rgba(245,244,241,.88)!important;color:#4B40B7!important}
+html[data-theme="light"] .lightbox-nav:hover,html[data-theme="light"] .lightbox-nav:focus-visible{background:var(--accent)!important;border-color:var(--accent)!important;color:var(--on-accent)!important}
+@media(min-width:1250px){
+.lightbox.is-opening .lightbox-bar{animation:lightbox-rail-in 320ms cubic-bezier(.22,1,.36,1) both}
+.lightbox.is-opening .lightbox-stage{animation:lightbox-stage-in 320ms cubic-bezier(.22,1,.36,1) both}
+.lightbox.is-closing .lightbox-bar{animation:lightbox-rail-out 240ms cubic-bezier(.4,0,1,1) both}
+.lightbox.is-closing .lightbox-stage{animation:lightbox-stage-out 240ms cubic-bezier(.4,0,1,1) both}
+.lightbox.is-opening .lightbox-bar,.lightbox.is-opening .lightbox-stage,.lightbox.is-closing .lightbox-bar,.lightbox.is-closing .lightbox-stage{will-change:transform}
+}
+@keyframes lightbox-rail-in{from{transform:translateX(-100%)}to{transform:translateX(0)}}
+@keyframes lightbox-stage-in{from{transform:translateX(-72px)}to{transform:translateX(0)}}
+@keyframes lightbox-rail-out{from{transform:translateX(0)}to{transform:translateX(-100%)}}
+@keyframes lightbox-stage-out{from{transform:translateX(0)}to{transform:translateX(-72px)}}
+@media(max-width:1249px) and (min-width:850px){
+.lightbox{left:340px;width:calc(100vw - 340px)}
+}
+@media(max-width:1249px){
+.lightbox{left:0;width:100vw;overflow-y:auto}
+.lightbox-shell{height:auto;min-height:100%;grid-template-columns:1fr;grid-template-rows:auto auto}
+.lightbox-stage{grid-row:1;height:auto;min-height:42vh;padding:52px 16px 20px;gap:16px;overflow-x:hidden;align-items:center}
+.lightbox-figure{flex:0 0 calc(100% - 32px)}
+.lightbox-image{max-height:none}
+.lightbox-peek{flex:0 0 70%;width:70%;max-height:none}
+.lightbox-bar{grid-row:2;height:auto;padding:28px 16px 40px;border-right:0;border-top:1px solid var(--hairline)}
+.lightbox-close{position:fixed;left:16px;top:12px;z-index:4}
+.lightbox-actions{flex-direction:row;flex-wrap:wrap;gap:16px}
+.lightbox-nav{position:fixed;top:12px;z-index:4}
+.lightbox-prev{left:auto;right:52px}
+.lightbox-next{left:auto;right:16px}
+}
+@media(prefers-reduced-motion:reduce){
+.lightbox-image{transition:none}
+}
+.screen.is-shared-source{visibility:hidden!important}
+.lightbox.is-opening,.lightbox.is-closing{pointer-events:none}
+.lightbox.is-opening .lightbox-image,.lightbox.is-closing .lightbox-image{opacity:0!important;transition:none!important}
+.lightbox.is-open-handoff .lightbox-image{opacity:1!important;transition:none!important}
+.lightbox-peek{opacity:0;transform:translate3d(20px,0,0);transition:opacity 160ms ease-out,transform 180ms cubic-bezier(.2,0,0,1)}
+.lightbox.is-peek-ready .lightbox-peek{opacity:.58;transform:translate3d(0,0,0)}
+.lightbox-close{z-index:4}
+.lightbox{--lightbox-scrim:rgba(27,27,27,.88);background:var(--lightbox-scrim);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.lightbox.is-opening{animation:lightbox-scrim-in 280ms cubic-bezier(.2,0,0,1) both}
+.lightbox.is-closing{animation:lightbox-scrim-out 280ms cubic-bezier(.2,0,0,1) both;-webkit-backdrop-filter:none;backdrop-filter:none}
+.lightbox.is-opening .lightbox-meta,.lightbox.is-opening .lightbox-actions,.lightbox.is-opening .lightbox-nav{animation-duration:280ms;animation-delay:0ms;animation-timing-function:cubic-bezier(.2,0,0,1)}
+.lightbox.is-closing .lightbox-meta,.lightbox.is-closing .lightbox-actions,.lightbox.is-closing .lightbox-nav{animation:lightbox-ui-out 280ms cubic-bezier(.2,0,0,1) both}
+.lightbox-shell{position:relative}
+@media(min-width:1250px){
+.lightbox-shell{grid-template-columns:minmax(0,1fr) var(--lightbox-rail-width)}
+.lightbox-bar{grid-column:2;grid-row:1;border-right:0;border-left:1px solid var(--hairline)}
+.lightbox-stage{grid-column:1;grid-row:1}
+.lightbox-close{left:auto;right:20px}
+body.lightbox-page-shift .content{transform:translate3d(calc(-1 * var(--lightbox-rail-width)),0,0);transition-duration:280ms;transition-timing-function:cubic-bezier(.2,0,0,1)}
+.lightbox.is-opening .lightbox-bar{animation-duration:280ms;animation-timing-function:cubic-bezier(.2,0,0,1)}
+.lightbox.is-closing .lightbox-bar{animation-duration:280ms;animation-timing-function:cubic-bezier(.2,0,0,1)}
+.lightbox.is-opening .lightbox-stage,.lightbox.is-closing .lightbox-stage{animation:none!important;transform:none!important}
+}
+.lightbox-stage{background:transparent;-webkit-backdrop-filter:none;backdrop-filter:none}
+html[data-theme="light"] .lightbox{--lightbox-scrim:rgba(245,244,241,.9);background:var(--lightbox-scrim)}
+html[data-theme="light"] .lightbox-stage{background:transparent}
+.lightbox-transition-frame{position:absolute;inset:auto;z-index:5;display:block;max-width:none;max-height:none;margin:0;overflow:hidden;border:1px solid var(--hairline);background:var(--well);pointer-events:none;transform-origin:top left;contain:layout paint style;will-change:transform}
+.lightbox-transition-frame img{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover;object-position:top}
+@keyframes lightbox-rail-in{from{transform:translateX(100%)}to{transform:translateX(0)}}
+@keyframes lightbox-rail-out{from{transform:translateX(0)}to{transform:translateX(100%)}}
+@keyframes lightbox-scrim-in{from{background-color:transparent}to{background-color:var(--lightbox-scrim)}}
+@keyframes lightbox-scrim-out{from{background-color:var(--lightbox-scrim)}to{background-color:transparent}}
+@keyframes lightbox-ui-out{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(4px)}}
+@media(prefers-reduced-motion:reduce){
+.lightbox-peek{transition:none!important}
+.lightbox.is-opening,.lightbox.is-closing,.lightbox.is-opening .lightbox-meta,.lightbox.is-opening .lightbox-actions,.lightbox.is-opening .lightbox-nav,.lightbox.is-closing .lightbox-meta,.lightbox.is-closing .lightbox-actions,.lightbox.is-closing .lightbox-nav{animation:none!important}
+}
+.lightbox.is-opening{pointer-events:auto}
+.lightbox-stage{overflow:clip}
+.lightbox-figure{margin-left:36px}
+.lightbox .lightbox-peek-button{display:block;flex:0 0 calc(75% - 72px);width:calc(75% - 72px);padding:0;line-height:0;align-self:center}
+.lightbox-peek-button .lightbox-peek{width:100%;max-width:100%;height:auto;pointer-events:none}
+.lightbox .lightbox-peek-previous{position:absolute;right:calc(100% - 28px);top:calc(50% + 8px);transform:translateY(-50%);width:calc((100% - 96px)*.75 - 72px)}
+.lightbox-peek-previous .lightbox-peek{transform:translate3d(-20px,0,0)}
+.lightbox.is-peek-ready .lightbox-peek-previous .lightbox-peek{transform:translate3d(0,0,0)}
+.lightbox.is-closing .lightbox-peek-button{visibility:hidden;pointer-events:none}
+.lightbox.is-closing .lightbox-peek{opacity:0!important;transition:none!important;transform:none!important}
+.lightbox-slide{position:absolute;display:block;max-width:none;max-height:none;object-fit:contain;transform-origin:top left;pointer-events:none;will-change:transform,opacity;z-index:1}
+.lightbox.is-switching .lightbox-image{opacity:1;transform:none;transition:none}
+.lightbox.has-navigation-layers .lightbox-image,.lightbox.has-navigation-layers .lightbox-peek{visibility:hidden}
+@media(max-width:1249px){
+.lightbox-figure{margin-left:16px}
+.lightbox .lightbox-peek-button{flex-basis:70%;width:70%}
+.lightbox .lightbox-peek-previous{right:calc(100% - 16px);top:calc(50% + 16px);width:calc((100% - 32px)*.7)}
+}
+.lightbox-figure{position:relative;isolation:isolate}
+.lightbox-placeholder{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;filter:blur(16px);opacity:0;pointer-events:none;transition:opacity 300ms ease-out;z-index:1}
+.lightbox-placeholder.is-visible{opacity:1}
+.lightbox-placeholder,.lightbox-slide{clip-path:inset(0)}
+.lightbox-figure:has(.lightbox-placeholder.is-visible:not([hidden])){overflow:hidden;background:var(--well)}
+.lightbox.is-opening .lightbox-placeholder,.lightbox.is-closing .lightbox-placeholder,.lightbox.has-navigation-layers .lightbox-placeholder{visibility:hidden}
+@media(prefers-reduced-motion:reduce){
+.lightbox-placeholder{transition:none}
+}
+.lightbox-nav:focus-visible,html[data-theme="light"] .lightbox-nav:focus-visible{border-color:var(--focus-ring)!important}
+.lightbox{position:fixed;z-index:3}
+.lightbox[data-standalone]{left:0;width:100vw}
+.lightbox.is-single-image .lightbox-nav,.lightbox.is-single-image .lightbox-peek-button{display:none}
