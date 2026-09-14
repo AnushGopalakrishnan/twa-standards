@@ -155,7 +155,7 @@ export function mountGallery(sections, standalone) {
       var wrapped=(index+previews.length)%previews.length;
       var preview=previews[wrapped];
       var image=preview.querySelector('img');
-      return {index:wrapped,preview:preview,src:preview.dataset.viewerSrc||preview.href,originalSrc:preview.href,placeholder:preview.dataset.placeholder||'',site:preview.dataset.site||'',category:preview.dataset.category||'',live:preview.dataset.liveUrl||'',alt:image?image.alt:''};
+      return {index:wrapped,preview:preview,src:preview.dataset.viewerSrc||preview.href,originalSrc:preview.href,placeholder:preview.dataset.placeholder||'',site:preview.dataset.site||'',category:preview.dataset.category||'',live:preview.dataset.liveUrl||'',alt:image?image.alt:'',width:image?Number(image.getAttribute('width'))||image.naturalWidth:0,height:image?Number(image.getAttribute('height'))||image.naturalHeight:0};
     }
 
     function allowSpeculation(){
@@ -295,6 +295,13 @@ export function mountGallery(sections, standalone) {
       renderCounter(count,nextIndex+1,previews.length,{trend:direction,animated:dialog.open&&!dialog.classList.contains('is-closing')});
     }
 
+    function reserveImageSize(image,item){
+      if(!item.width||!item.height){return;}
+      image.width=item.width;
+      image.height=item.height;
+      image.style.aspectRatio=item.width+' / '+item.height;
+    }
+
     function render(index,options){
       options=options||{};
       sharpToken+=1;
@@ -306,6 +313,9 @@ export function mountGallery(sections, standalone) {
       if(dialog.open&&item.index!==activeSourceIndex){setActiveSource(item.index);}
       updateCounter(item.index);
       currentIndex=item.index;
+      reserveImageSize(viewerImage,item);
+      reserveImageSize(peekImage,next);
+      reserveImageSize(previousPeekImage,previous);
       title.textContent=item.site;
       category.textContent=item.category;
       downloadLink.href=item.originalSrc;
@@ -452,8 +462,7 @@ export function mountGallery(sections, standalone) {
         // displayed bitmap for a frame even when another Image already decoded it.
         sharpImage.className='lightbox-image';
         sharpImage.alt=item.alt;
-        sharpImage.width=1440;
-        sharpImage.height=900;
+        reserveImageSize(sharpImage,item);
         viewerImage.replaceWith(sharpImage);
         viewerImage=sharpImage;
         nearbyImages.delete(item.index);
