@@ -112,6 +112,7 @@ export function mountGallery(sections, standalone) {
     var navigationIncoming=null;
     var requestedIndex=-1;
     var nearbyImages=new Map();
+    var originals=new WeakMap();
     var preloadWorkers=0;
     var sharpToken=0;
     // Use the same request mode as gallery thumbnails so cached previews remain reusable.
@@ -179,8 +180,27 @@ export function mountGallery(sections, standalone) {
       return !(connection&&(connection.saveData||/slow-2g|2g/.test(connection.effectiveType)));
     }
 
+    // Standalone feeds keep a decoded original in the source card. That same
+    // bitmap can expand and return without repeatedly downgrading to a thumbnail.
+    function prepareOriginal(preview){
+      if(originals.has(preview)){return originals.get(preview);}
+      var source=preview.querySelector('img');
+      var image=source.cloneNode(false);
+      image.removeAttribute('srcset');
+      image.removeAttribute('sizes');
+      image.loading='eager';
+      image.crossOrigin='anonymous';
+      image.src=preview.dataset.viewerSrc||preview.href;
+      var pending=image.decode().then(function(){
+        if(source.isConnected){source.replaceWith(image);}
+      }).catch(function(){originals.delete(preview);});
+      originals.set(preview,pending);
+      return pending;
+    }
+
     function warmScreenshot(index,priority){
       var item=itemAt(index);
+      if(standalone){prepareOriginal(item.preview);return;}
       if(!dialog.open&&!nearbyImages.has(index)){clearPreloads();}
       var entry=nearbyImages.get(index);
       if(!entry){
@@ -232,6 +252,7 @@ export function mountGallery(sections, standalone) {
     var restoringGalleryFocus=false;
     function prepareIntent(target){
       if(dialog.open||restoringGalleryFocus||!allowSpeculation()){return;}
+      if(standalone){prepareOriginal(target);return;}
       if(target.matches('.category-nav a')){warmCategory(target);}
       else{var index=previews.indexOf(target);if(index>=0){warmScreenshot(index,'low');}}
     }
@@ -268,6 +289,10 @@ export function mountGallery(sections, standalone) {
     }
 
     function preloadWindow(index){
+      if(standalone){
+        if(allowSpeculation()&&previews.length>1){[-1,1].forEach(function(offset){prepareOriginal(itemAt(index+offset).preview);});}
+        return;
+      }
       var offsets=allowSpeculation()?[-1,1]:[];
       var keep=new Set(offsets.concat([0]).map(function(offset){return itemAt(index+offset).index;}));
       nearbyImages.forEach(function(entry,key){
@@ -464,6 +489,7 @@ export function mountGallery(sections, standalone) {
 
     function scheduleSharpImage(index,token){
       var item=itemAt(index);
+      if(standalone&&viewerImage.src===item.src){preloadWindow(index);return;}
       var request=++sharpToken;
       var cached=nearbyImages.get(item.index);
       var sharpImage=cached&&cached.started?cached.image:new Image();
@@ -526,6 +552,13 @@ export function mountGallery(sections, standalone) {
 
     async function openViewer(index,trigger){
       clearTimeout(intentTimer);
+      var token=++openTransitionToken;
+      if(standalone){
+        trigger.setAttribute('aria-busy','true');
+        await prepareOriginal(trigger);
+        trigger.removeAttribute('aria-busy');
+        if(token!==openTransitionToken){return;}
+      }
       // Fetch and decode during the opening animation; promotion stays atomic.
       warmScreenshot(index,'high');
       window.clearTimeout(closeAnimationTimer);
@@ -536,7 +569,6 @@ export function mountGallery(sections, standalone) {
       var sourceRect=sourceFrame?sourceFrame.getBoundingClientRect():null;
       var reduceMotion=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       var canAnimate=sourceImage&&sourceFrame&&sourceRect&&sourceRect.width&&sourceRect.height&&!reduceMotion&&typeof sourceFrame.animate==='function';
-      var token=++openTransitionToken;
       var sourceUrl=cardSource(trigger);
       var transitionImage=null;
       if(canAnimate){
@@ -777,5 +809,5 @@ export function mountGallery(sections, standalone) {
     });
     stage.addEventListener('pointercancel',function(){pointerStartX=null;});
 
-    return {close: closeViewer};
+    return {close: closeViewer, prepare: prepareIntent};
 }
