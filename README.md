@@ -75,3 +75,13 @@ For v1, publish the tagged package before merging Specimen's adoption. Consumers
 ## Design references
 
 [Geist Button](https://vercel.com/geist/button) informed working examples and state comparisons. [Primer documentation guidance](https://primer.style/product/contribute/documentation/) informed purpose, usage, behavior and accessibility sections. Specimen supplies the visual language and supported interface scope.
+
+## Standalone image viewer
+
+Microblog uses the same Specimen viewer engine through `mountLightbox({root, dialog, background})` from `twa-standards/patterns/viewer.js`. Include `viewer.html` once and import `patterns/viewer.css` for the viewer without Specimen's grid/sidebar layout. The stylesheet is generated from `specimen.css` during build, so animation/style fixes stay shared. `root` contains `.preview` image links with a `.screen` wrapper, optional `data-site` title, `data-category`, and `data-live-url`. Pass covered page elements as `background` to preserve/restore their inert state. The standalone dialog fills the viewport, hides View live when no destination exists, and hides navigation when there is only one image. Existing `mountGallery(sections)` behavior and Specimen's layout are preserved.
+
+`mountLightbox` also accepts `groupSelector`: when supplied, navigation is limited to previews in the clicked image's closest matching group. Images outside a group open alone. Single-image viewers ignore navigation keys as well as hiding arrows/peeks. Microblog uses `[data-gallery]` so unrelated posts are never joined into one slideshow.
+
+Standalone opening/closing/navigation measurements use the visible contained image rectangle when the image element is height-constrained. `mountGallery` keeps its previous element-bound measurements; Specimen consumers are unchanged.
+
+Standalone viewers prepare the original on hover/focus and decode it before opening. The decoded image replaces its feed thumbnail, so opening, closing and reopening retain one resolution. A cold click waits for decode with `aria-busy` on its link; failed originals fall back to the preview and retry on future intent. Adjacent gallery originals are prepared while open, respecting Save-Data/slow connections. `mountLightbox` returns `{close, prepare}`; lazy-loading hosts should call `prepare(preview)` for the hover/focus that mounted the module. This behavior is limited to standalone hosts; `mountGallery` retains its existing progressive loading.

@@ -1,14 +1,20 @@
 import {updateCounter as renderCounter} from '../counter.js';
 
 /** Mount once per document. Sections are detached or mounted DOM from createGallerySections. */
-export function mountGallery(sections) {
-    var gallery=document.getElementById('gallery');
+export function mountLightbox({root, dialog=document.getElementById('lightbox'), background=[], groupSelector}) {
+    dialog.dataset.standalone='';
+    return mountGallery([], {root, dialog, background, groupSelector});
+}
+
+export function mountGallery(sections, standalone) {
+    var gallery=standalone?standalone.root:document.getElementById('gallery');
     var categoryLinks=Array.prototype.slice.call(document.querySelectorAll('.category-nav a[data-category]'));
-    var dialog=document.getElementById('lightbox');
-    var previews=[];
+    var dialog=standalone?standalone.dialog:document.getElementById('lightbox');
+    var previews=standalone?Array.from(gallery.querySelectorAll('.preview')):[];
     var activeSectionId='';
 
     function categoryFromURL(){
+      if(standalone){return null;}
       var url=new URL(location.href);
       if(!url.searchParams.has('category')&&sections.some(function(section){return section.id===url.hash.slice(1);})) {
         url.searchParams.set('category',url.hash.slice(1));
@@ -19,6 +25,7 @@ export function mountGallery(sections) {
     }
 
     function selectCategory(id,scroll){
+      if(standalone){return;}
       var section=sections.find(function(section){return section.id===id;})||sections[0];
       if(!section||section.id===activeSectionId){return;}
       // Keep the current viewer's cards until its close animation finishes.
@@ -53,6 +60,7 @@ export function mountGallery(sections) {
     window.addEventListener('hashchange',function(){selectCategory(categoryFromURL(),true);});
 
     if(!dialog||typeof dialog.show!=='function'||!previews.length){return {close: function(){}};}
+    dialog.classList.toggle('is-single-image',previews.length===1);
     var viewerImage=dialog.querySelector('.lightbox-image');
     var peekImage=dialog.querySelector('.lightbox-peek');
     var peekButton=peekImage.parentElement;
@@ -74,7 +82,16 @@ export function mountGallery(sections) {
     var sidebar=document.querySelector('.sidebar');
     var contentArea=document.querySelector('.content');
     var skipLink=document.querySelector('.skip');
+    var previousInert=new Map();
     function setViewerBackground(active){
+      if(standalone){
+        standalone.background.forEach(function(element){
+          if(active){if(!previousInert.has(element)){previousInert.set(element,element.inert);}element.inert=true;}
+          else if(previousInert.has(element)){element.inert=previousInert.get(element);}
+        });
+        if(!active){previousInert.clear();}
+        return;
+      }
       contentArea.inert=active;
       sidebar.inert=active&&window.matchMedia('(max-width:1249px)').matches;
       skipLink.inert=active;
@@ -95,6 +112,7 @@ export function mountGallery(sections) {
     var navigationIncoming=null;
     var requestedIndex=-1;
     var nearbyImages=new Map();
+    var originals=new WeakMap();
     var preloadWorkers=0;
     var sharpToken=0;
     // Use the same request mode as gallery thumbnails so cached previews remain reusable.
@@ -127,6 +145,22 @@ export function mountGallery(sections) {
       return rect;
     }
 
+    // Standalone image feeds can hit the height cap before filling the stage.
+    // Animate their painted, contained image bounds rather than its wider box.
+    // Specimen retains its existing measurements and animation behavior.
+    function imageBounds(image){
+      var rect=image.getBoundingClientRect();
+      if(!standalone){return rect;}
+      var width=image.naturalWidth||Number(image.getAttribute('width'));
+      var height=image.naturalHeight||Number(image.getAttribute('height'));
+      if(!width||!height){return rect;}
+      var scale=Math.min(rect.width/width,rect.height/height);
+      var fittedWidth=width*scale,fittedHeight=height*scale;
+      var left=rect.left+(rect.width-fittedWidth)/2;
+      var top=rect.top+(rect.height-fittedHeight)/2;
+      return {x:left,y:top,left:left,top:top,right:left+fittedWidth,bottom:top+fittedHeight,width:fittedWidth,height:fittedHeight};
+    }
+
     function cardSource(preview){
       var image=preview.querySelector('img');
       var screen=preview.querySelector('.screen');
@@ -138,7 +172,7 @@ export function mountGallery(sections) {
       var wrapped=(index+previews.length)%previews.length;
       var preview=previews[wrapped];
       var image=preview.querySelector('img');
-      return {index:wrapped,preview:preview,src:preview.dataset.viewerSrc||preview.href,originalSrc:preview.href,placeholder:preview.dataset.placeholder||'',site:preview.dataset.site||'',category:preview.dataset.category||'',live:preview.dataset.liveUrl||'',alt:image?image.alt:''};
+      return {index:wrapped,preview:preview,src:preview.dataset.viewerSrc||preview.href,originalSrc:preview.href,placeholder:preview.dataset.placeholder||'',site:preview.dataset.site||'',category:preview.dataset.category||'',live:preview.dataset.liveUrl||'',alt:image?image.alt:'',width:image?Number(image.getAttribute('width'))||image.naturalWidth:0,height:image?Number(image.getAttribute('height'))||image.naturalHeight:0};
     }
 
     function allowSpeculation(){
@@ -146,8 +180,27 @@ export function mountGallery(sections) {
       return !(connection&&(connection.saveData||/slow-2g|2g/.test(connection.effectiveType)));
     }
 
+    // Standalone feeds keep a decoded original in the source card. That same
+    // bitmap can expand and return without repeatedly downgrading to a thumbnail.
+    function prepareOriginal(preview){
+      if(originals.has(preview)){return originals.get(preview);}
+      var source=preview.querySelector('img');
+      var image=source.cloneNode(false);
+      image.removeAttribute('srcset');
+      image.removeAttribute('sizes');
+      image.loading='eager';
+      image.crossOrigin='anonymous';
+      image.src=preview.dataset.viewerSrc||preview.href;
+      var pending=image.decode().then(function(){
+        if(source.isConnected){source.replaceWith(image);}
+      }).catch(function(){originals.delete(preview);});
+      originals.set(preview,pending);
+      return pending;
+    }
+
     function warmScreenshot(index,priority){
       var item=itemAt(index);
+      if(standalone){prepareOriginal(item.preview);return;}
       if(!dialog.open&&!nearbyImages.has(index)){clearPreloads();}
       var entry=nearbyImages.get(index);
       if(!entry){
@@ -199,10 +252,11 @@ export function mountGallery(sections) {
     var restoringGalleryFocus=false;
     function prepareIntent(target){
       if(dialog.open||restoringGalleryFocus||!allowSpeculation()){return;}
+      if(standalone){prepareOriginal(target);return;}
       if(target.matches('.category-nav a')){warmCategory(target);}
       else{var index=previews.indexOf(target);if(index>=0){warmScreenshot(index,'low');}}
     }
-    [gallery,document.querySelector('.category-nav')].forEach(function(root){
+    [gallery,standalone?null:document.querySelector('.category-nav')].filter(Boolean).forEach(function(root){
       function targetOf(event){return event.target.closest('.preview,.category-nav a');}
       root.addEventListener('pointerover',function(event){
         var target=targetOf(event);
@@ -235,6 +289,10 @@ export function mountGallery(sections) {
     }
 
     function preloadWindow(index){
+      if(standalone){
+        if(allowSpeculation()&&previews.length>1){[-1,1].forEach(function(offset){prepareOriginal(itemAt(index+offset).preview);});}
+        return;
+      }
       var offsets=allowSpeculation()?[-1,1]:[];
       var keep=new Set(offsets.concat([0]).map(function(offset){return itemAt(index+offset).index;}));
       nearbyImages.forEach(function(entry,key){
@@ -278,6 +336,13 @@ export function mountGallery(sections) {
       renderCounter(count,nextIndex+1,previews.length,{trend:direction,animated:dialog.open&&!dialog.classList.contains('is-closing')});
     }
 
+    function reserveImageSize(image,item){
+      if(!item.width||!item.height){return;}
+      image.width=item.width;
+      image.height=item.height;
+      image.style.aspectRatio=item.width+' / '+item.height;
+    }
+
     function render(index,options){
       options=options||{};
       sharpToken+=1;
@@ -289,10 +354,14 @@ export function mountGallery(sections) {
       if(dialog.open&&item.index!==activeSourceIndex){setActiveSource(item.index);}
       updateCounter(item.index);
       currentIndex=item.index;
+      reserveImageSize(viewerImage,item);
+      reserveImageSize(peekImage,next);
+      reserveImageSize(previousPeekImage,previous);
       title.textContent=item.site;
       category.textContent=item.category;
       downloadLink.href=item.originalSrc;
       downloadLink.setAttribute('download',item.originalSrc.split('/').pop()||'screenshot.png');
+      liveLink.hidden=!item.live;
       liveLink.href=item.live;
       liveLink.setAttribute('aria-label','View '+item.site+' live page in a new tab');
       previousButton.setAttribute('aria-label','Previous screenshot: '+previous.site);
@@ -322,7 +391,7 @@ export function mountGallery(sections) {
 
     async function moveViewer(delta){
       if(!dialog.open||dialog.classList.contains('is-closing')){return;}
-      if(!delta){return;}
+      if(!delta||previews.length<2){return;}
       var destination=itemAt((requestedIndex<0?currentIndex:requestedIndex)+delta);
       requestedIndex=destination.index;
       var reduceMotion=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -350,9 +419,9 @@ export function mountGallery(sections) {
       }
       if(token!==navigationToken||!dialog.open){return;}
       var openingRect=interruptOpening();
-      var primaryRect=viewerImage.getBoundingClientRect();
-      var peekRect=peekImage.getBoundingClientRect();
-      var previousPeekRect=previousPeekImage.getBoundingClientRect();
+      var primaryRect=imageBounds(viewerImage);
+      var peekRect=imageBounds(peekImage);
+      var previousPeekRect=imageBounds(previousPeekImage);
       var stageRect=stage.getBoundingClientRect();
       var outgoingSrc=viewerImage.currentSrc||viewerImage.src;
       var oldPeekSrc=peekImage.currentSrc||peekImage.src;
@@ -391,7 +460,7 @@ export function mountGallery(sections) {
         return {image:image,animation:animation};
       }
       render(destination.index,{imageSrc:navigationSrc});
-      var targetRect=viewerImage.getBoundingClientRect();
+      var targetRect=imageBounds(viewerImage);
       var visibleDestination=snapshots.find(function(snapshot){return snapshot.index===destination.index;});
       var nextIndex=itemAt(destination.index+1).index;
       var previousIndex=itemAt(destination.index-1).index;
@@ -420,6 +489,7 @@ export function mountGallery(sections) {
 
     function scheduleSharpImage(index,token){
       var item=itemAt(index);
+      if(standalone&&viewerImage.src===item.src){preloadWindow(index);return;}
       var request=++sharpToken;
       var cached=nearbyImages.get(item.index);
       var sharpImage=cached&&cached.started?cached.image:new Image();
@@ -434,8 +504,7 @@ export function mountGallery(sections) {
         // displayed bitmap for a frame even when another Image already decoded it.
         sharpImage.className='lightbox-image';
         sharpImage.alt=item.alt;
-        sharpImage.width=1440;
-        sharpImage.height=900;
+        reserveImageSize(sharpImage,item);
         viewerImage.replaceWith(sharpImage);
         viewerImage=sharpImage;
         nearbyImages.delete(item.index);
@@ -483,6 +552,13 @@ export function mountGallery(sections) {
 
     async function openViewer(index,trigger){
       clearTimeout(intentTimer);
+      var token=++openTransitionToken;
+      if(standalone){
+        trigger.setAttribute('aria-busy','true');
+        await prepareOriginal(trigger);
+        trigger.removeAttribute('aria-busy');
+        if(token!==openTransitionToken){return;}
+      }
       // Fetch and decode during the opening animation; promotion stays atomic.
       warmScreenshot(index,'high');
       window.clearTimeout(closeAnimationTimer);
@@ -493,7 +569,6 @@ export function mountGallery(sections) {
       var sourceRect=sourceFrame?sourceFrame.getBoundingClientRect():null;
       var reduceMotion=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       var canAnimate=sourceImage&&sourceFrame&&sourceRect&&sourceRect.width&&sourceRect.height&&!reduceMotion&&typeof sourceFrame.animate==='function';
-      var token=++openTransitionToken;
       var sourceUrl=cardSource(trigger);
       var transitionImage=null;
       if(canAnimate){
@@ -530,7 +605,7 @@ export function mountGallery(sections) {
       document.body.classList.add('lightbox-page-shift');
       if(!canAnimate){finishOpenTransition(token,null,index);return;}
       var dialogRect=dialog.getBoundingClientRect();
-      var targetRect=viewerImage.getBoundingClientRect();
+      var targetRect=imageBounds(viewerImage);
       if(!targetRect.width||!targetRect.height){finishOpenTransition(token,null,index);return;}
       transitionImage.style.left=(targetRect.left-dialogRect.left)+'px';
       transitionImage.style.top=(targetRect.top-dialogRect.top)+'px';
@@ -557,7 +632,8 @@ export function mountGallery(sections) {
     function revealCurrentCard(){
       var preview=previews[currentIndex];
       if(!preview){return;}
-      if(!returnFocus||!sidebar.contains(returnFocus)){returnFocus=preview;}
+      if(!returnFocus||(!sidebar||!sidebar.contains(returnFocus))){returnFocus=preview;}
+      if(standalone){preview.scrollIntoView({block:'nearest',inline:'nearest',behavior:'instant'});}
       var card=preview.closest('.card')||preview;
       var rect=card.getBoundingClientRect();
       var inset=16;
@@ -580,9 +656,9 @@ export function mountGallery(sections) {
       revealCurrentCard();
       var sourceFrame=activeSourceFrame;
       var sourceRect=sourceFrame?sourceFrame.getBoundingClientRect():null;
-      var targetRect=movingRect||viewerImage.getBoundingClientRect();
+      var targetRect=movingRect||imageBounds(viewerImage);
       var content=document.querySelector('.content');
-      var contentTransform=getComputedStyle(content).transform;
+      var contentTransform=content?getComputedStyle(content).transform:'none';
       var contentShift=contentTransform&&contentTransform!=='none'?new DOMMatrix(contentTransform).m41:0;
       var canAnimate=sourceFrame&&sourceRect&&sourceRect.width&&sourceRect.height&&targetRect.width&&targetRect.height&&!reduceMotion&&typeof sourceFrame.animate==='function';
       if(!canAnimate){document.body.classList.remove('lightbox-page-shift');clearActiveSource();dialog.close();return;}
@@ -640,6 +716,12 @@ export function mountGallery(sections) {
       var preview=event.target.closest('.preview');
       if(!preview||event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey){return;}
       event.preventDefault();
+      if(standalone&&standalone.groupSelector){
+        clearPreloads();
+        var group=preview.closest(standalone.groupSelector);
+        previews=group?Array.from(group.querySelectorAll('.preview')):[preview];
+        dialog.classList.toggle('is-single-image',previews.length===1);
+      }
       openViewer(previews.indexOf(preview),preview);
     });
 
@@ -727,5 +809,5 @@ export function mountGallery(sections) {
     });
     stage.addEventListener('pointercancel',function(){pointerStartX=null;});
 
-    return {close: closeViewer};
+    return {close: closeViewer, prepare: prepareIntent};
 }
